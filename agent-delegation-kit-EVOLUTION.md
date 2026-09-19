@@ -449,3 +449,69 @@ drafted now and read later. Beyond that the queue is unchanged: the Goldshell
 tranche, which is the work all of this was meant to make cheaper and better
 judged, and then the Mac gate, the three-strikes edit hook, the dispatch hook
 and the restructure of the shared instructions.
+
+## 2026-09-19: the Goldshell tranche, and the kit's first use in anger
+
+The queue's next item was "the Goldshell tranche, which is the work all of this
+was meant to make cheaper and better judged". It ran, and it is the first time
+`executor` and `reviewer` did real work rather than shape tests. The detailed
+write-up, with per-dispatch figures and seven proposed changes in priority
+order, is `FIELD-NOTES-2026-09-19-goldshell.md`; this entry records what it
+means for the kit rather than repeating it.
+
+**What ran.** One `executor` (sonnet, `isolation: worktree`), one `reviewer`
+(the parent's model), one `scanner` (sonnet), against a live Python project that
+runs a watchdog over mining hardware and can cut its mains power. Small,
+well-tested, and consequential if a defect ships. The release went out as 0.7.3.
+`browser-checker` was not used and is still shape-tested only, as is
+`isolation: worktree` from a non-repo directory.
+
+**The finding that matters is about briefs, not about agents.** The brief named
+a regex as the hazard, in bold, and listed the files in scope. A mirror of that
+same regex lived in the dashboard's JavaScript, in a directory the brief had
+fenced off. Widening only the Python one would have made the page silently stop
+classifying an event class, with no error and no failing test. The executor
+stayed inside its scope, which is what the kit asks of it, and the defect
+survived precisely because the boundary looked considered.
+
+So the scope list is not just an instruction to the agent, it is a claim by the
+author that the blast radius has already been worked out, and the agent
+reasonably trusts it. A hazard named and then scoped out is worse than one never
+mentioned. The proposed fix is a search step in the template: for each hazard,
+find everything that reads the same literal, and either scope it in or say why
+not. The parent session caught this one by grepping afterwards on a hunch, which
+is not a control.
+
+**The second finding revises something this log already records.** The
+2026-09-18 entry concluded that `scanner` stays on Sonnet on calibration
+grounds, after Haiku's prose twice overstated what its numbers supported. The
+`reviewer` here, on Opus, did the same thing: it opened with "hold this merge"
+over three findings that were all genuinely real and all latent, unreachable in
+the shipped configuration because the method in question has one call site. Two
+commands settled it, and taking the verdict at face value would have held a good
+merge.
+
+That makes overstatement a property of the reviewing role rather than of a cheap
+model. The role rewards finding things and nothing in the brief asked it to
+price them. The proposal is to require reachability stated separately from
+severity, and to make "do not merge" require a reachable defect.
+
+**What worked, and is worth defending in the template.** The stop-loss wording
+earned its place: this brief carried "an unfinished write-up is a success"
+alongside a stop below the budget, and the executor reported at 48 tool calls
+against 40. The same repo and model tier, with a budget but without that line,
+had previously run to 109 against 70 with no report and uncommitted work
+recovered by hand. One data point each, so not proof, but the difference is
+large and the mechanism is plausible: an agent given only a ceiling treats
+stopping as failure and keeps going.
+
+The executor's refusal to widen scope was also vindicated concretely. It stopped
+on a one-line default change because a single out-of-scope test asserted the old
+value. There were six failures across four files, and the right fix differed
+between them: three were asserting the default and should read the constant,
+while the fourth was asserting mechanics built on the old number and should pin
+it explicitly. Had it edited its way to green it would have made four unreviewed
+judgement calls, two of them backwards.
+
+**Nothing here has been applied.** The seven proposals are Mark's to accept or
+reject, and a session focused on the kit should start from the field notes.
