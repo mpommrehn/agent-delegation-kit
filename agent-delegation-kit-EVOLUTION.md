@@ -176,9 +176,8 @@ the new checks fail. Run against the fixed code, none do.
 
 **What was decided against.** Claiming any of these types is a sandbox. The
 README gained a section, "What the tool limits do not do", that says what each
-limit is worth. The honest position is that these definitions reduce what an
-agent reaches for by accident, and that a permission prompt remains the real
-control.
+limit is worth. These definitions reduce what an agent reaches for by accident,
+and a permission prompt remains the real control.
 
 **The lesson worth keeping.** The maker's mutation test and the reviewer's
 found different holes in the same regex, because the maker tested the inputs it
@@ -413,7 +412,7 @@ A per-call model outranks the definition. `scanner` has now been exercised on
 three real files, one of them the 7.5 MB telemetry log that caused the incident
 this repository exists to answer.
 
-**What is still untested, said plainly because the README says it too.**
+**What is still untested, which the README says too.**
 `executor` has never run. `reviewer` has never run. `browser-checker` has never
 run. `isolation: worktree` from a directory that is not a git repository is
 still a guess. Three of the four types are shape-tested and nothing more, and
