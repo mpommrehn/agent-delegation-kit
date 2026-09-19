@@ -223,3 +223,9 @@ and forbids `Explore`, so sessions launched there get the rule without the
 user-level memory, which is keyed to a different directory. An audit of that
 project's six earlier subagent transcripts found five on the top-tier model
 and one on Sonnet: the pattern this kit exists to end.
+
+**Session close.** Both repositories pushed (kit `552c9a0`, Goldshell
+`997c302`), D: refreshed, status document updated. Closed at Mark's word at
+the context checkpoint. Verification (V1 to V3) is the first thing the next
+session does, from `STATUS.md`, before any Goldshell work relies on the
+tiering.
