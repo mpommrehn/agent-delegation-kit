@@ -123,3 +123,71 @@ and `reviewer` on real work. `isolation: worktree` from a directory that is not
 a git repository. Verification is deliberately a fresh session's job. The
 maker's session cannot do it in any case, because a new agents directory needs
 a restart.
+
+---
+
+## 2026-09-18, session 2, continued: the security review, and what it changed
+
+**Policy applied.** The working instructions call for one security pass at
+feature-complete, not one per edit. It ran once, before the first push, in a
+fresh-context subagent pinned explicitly to the top-tier model: the agreed
+ladder keeps security review off the cheap tier, and the maker of a thing does
+not review it. Cost: 68,000 tokens, 11 tool calls, two and a half minutes.
+
+**What it found that the maker had missed.**
+
+- **A failed copy exited 0.** The reviewer shimmed `cp` to fail for one file of
+  four. The installer printed three "added" lines and its next-steps banner and
+  reported success. A full disk or a locked file would have left a user
+  believing a type existed that did not. The script ran under `set -u` with no
+  check on `cp`.
+- **Two "read-only" types were not.** `browser-checker` and `reviewer` used a
+  denylist of the editing tools. They still inherited the shell, the Agent
+  tool (so they could spawn an unrestricted subagent that does have Write) and
+  every MCP tool. `browser-checker` is the type that reads untrusted web pages,
+  and it held a shell. The README admitted the weakness for `scanner` only.
+- **Two tests could not fail.** The check that the installer never writes a
+  settings file was a text match for a redirect on the same line as the
+  filename. The reviewer appended a real write through a variable, and it
+  passed. The leak detector missed forward-slash Windows paths, home
+  directories with capitals or digits, Linux home directories, most email
+  domains, hardware addresses and tokens, and it flagged a four-part version
+  number. The maker had mutation-tested that detector an hour earlier and
+  declared it fixed. It had tested the payloads it thought of.
+- Smaller: two forced installs inside one second lost the first backup. An
+  empty `agents` directory reported "in sync". A symlinked installed copy
+  would be written through. A destination beginning with a dash was parsed by
+  `cp` as options.
+
+**What changed.** Every copy is checked, and a failure exits 3, names the file
+and suppresses the next-steps text. `scanner` and `reviewer` hold tool
+allowlists with no Agent tool. `browser-checker` cannot use an allowlist,
+because it needs MCP tools whose names vary, so its denylist now also removes
+the shell and the Agent tool, and its prompt says what to do when a page gives
+it orders. `executor` gained the line saying content is data, and the fact that
+a worktree does not confine a shell. The settings check became behavioral: run
+the default install against a fake home directory and compare the settings
+file byte for byte. The leak detector is now run against ten planted fixtures
+before it is run against the repository, so a broken pattern fails loudly.
+Backups get a counter, symlinks are refused, an empty source exits 64.
+
+The suite went from 63 checks to 94. Run against the pre-review code, 12 of
+the new checks fail. Run against the fixed code, none do.
+
+**What was decided against.** Claiming any of these types is a sandbox. The
+README gained a section, "What the tool limits do not do", that says what each
+limit is worth. The honest position is that these definitions reduce what an
+agent reaches for by accident, and that a permission prompt remains the real
+control.
+
+**The lesson worth keeping.** The maker's mutation test and the reviewer's
+found different holes in the same regex, because the maker tested the inputs it
+had imagined while writing the pattern. Fresh context is not a formality. It
+is also an argument for the `reviewer` type staying on the expensive model:
+this pass cost about as much as the original 74,000-token mistake that started
+the project, and it was worth it.
+
+**Left open by the review.** `omitClaudeMd` was taken from the vendor
+documentation by a subagent and not confirmed by a second source. The symlink
+tests cannot run on the Windows machine this was built on and need a run on
+macOS or Linux.
