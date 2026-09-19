@@ -298,7 +298,7 @@ The cost went the wrong way too. Haiku took 2.5 times the tokens and twice the
 wall clock: thirty assistant turns against fifteen, and each turn re-read the
 context, which is where a 6.4-fold cache-read figure comes from. Per token
 Haiku is far cheaper, so on price the two land near each other; on latency
-Haiku is plainly worse, and the token saving the change was meant to buy never
+Haiku is worse, and the token saving the change was meant to buy never
 appeared.
 
 **Recommendation, Mark's to accept or refuse:** leave `scanner` on Sonnet. One
