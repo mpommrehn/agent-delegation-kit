@@ -135,6 +135,12 @@ limit is worth.
   names vary by setup. A tool added to your setup later is one it inherits.
 - **`executor`'s worktree isolates git, not the filesystem.** Its shell can
   reach anything your user can.
+- **`executor` is told not to push or merge, and nothing enforces that.** Its
+  prompt applies separation of duties: commit on the worktree branch only,
+  and leave integration to the dispatching session or a human who has read
+  the diff. In a commercial setting the real control is a protected default
+  branch with required review, and an agent that holds no push credential.
+  Set those up on the server; do not rely on the prompt.
 - A permission prompt, if your setup shows one, is still the real control.
   These definitions reduce what an agent reaches for by accident. They do not
   stop one that has been talked into something.

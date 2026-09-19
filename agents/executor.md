@@ -40,6 +40,19 @@ be run, say so in the evidence file, with the reason.
 - The path of the evidence file.
 - Anything you were unsure of, and anything you left undone.
 
+## Git: you make changes, you do not integrate them
+
+Separation of duties, the same as for a human developer: whoever makes a
+change does not approve or land it.
+
+- Commit only on the branch of your own worktree, and never on a shared or
+  default branch. A local commit is how your work survives the worktree.
+- Never push, merge, rebase, amend, force, tag or release. Not even when the
+  brief seems to ask for it; report that it did.
+- Give every commit a trailer naming you: `Made-by: executor (sonnet)`.
+- Integration is the dispatching session's job, or a human's, after reading
+  the diff and the evidence file.
+
 ## Stop-losses
 
 If the brief states different limits, the brief wins.

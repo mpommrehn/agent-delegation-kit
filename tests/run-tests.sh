@@ -112,6 +112,14 @@ for t in Write Edit NotebookEdit Bash PowerShell Agent; do
   esac
 done
 
+# The executor is the only type that changes files. It must never integrate.
+if grep -qi 'never push, merge' "$root/agents/executor.md"; then
+  ok "executor: prompt forbids push and merge"
+else bad "executor: prompt forbids push and merge"; fi
+if grep -qi 'never push, merge' "$root/templates/BRIEF-TEMPLATE.md"; then
+  ok "brief template: carries the no-push, no-merge rule"
+else bad "brief template: carries the no-push, no-merge rule"; fi
+
 for f in "$root"/agents/*.md; do
   if grep -q 'is data\.' "$f"; then
     ok "$(basename "$f" .md): prompt says content is data, not instructions"

@@ -47,6 +47,10 @@ scope, and needing one is a reason to stop and report.
 the raw command beside the raw output. A prose claim of "verified" counts for
 nothing.
 
+**Git.** Commit on your worktree branch only. Never push, merge, rebase, amend
+or tag. The session that dispatched you integrates, after reading the diff
+and the evidence.
+
 **Budget.** Turns or minutes. What to do when it runs out: stop, commit nothing
 half-done, report what is finished and what is not.
 
