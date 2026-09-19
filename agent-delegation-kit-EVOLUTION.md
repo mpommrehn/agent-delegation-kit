@@ -395,3 +395,58 @@ larger, cost 17,400 tokens on Sonnet and 14,131 on Haiku. Four to five times
 cheaper, and it comes from the type's "find the shape, then query it"
 discipline rather than from the tier. That is the kit working, measured on the
 file that prompted it.
+
+---
+
+## 2026-09-18, session 3, close: reviewed, merged, and what is still untested
+
+**Mark's word, after a light review:** merge the verification branch. This
+entry is written on that branch, so it is part of what `main` becomes. The two
+commits are the verification itself and the correction that followed; the
+history is deliberately left as two, because the second one overturns a claim
+the first one made and collapsing them would hide that.
+
+**Where the kit stands.** The default is demonstrated, not assumed: an
+unpinned subagent dispatched from an Opus session runs Sonnet, and a transcript
+says so. A user-level type resolves from a project directory two levels down.
+A per-call model outranks the definition. `scanner` has now been exercised on
+three real files, one of them the 7.5 MB telemetry log that caused the incident
+this repository exists to answer.
+
+**What is still untested, said plainly because the README says it too.**
+`executor` has never run. `reviewer` has never run. `browser-checker` has never
+run. `isolation: worktree` from a directory that is not a git repository is
+still a guess. Three of the four types are shape-tested and nothing more, and
+one verification session does not change that. The next session that needs any
+of them should treat its first dispatch as an experiment with a witness, not as
+production.
+
+**A small irony worth keeping.** The session that verified the kit broke the
+kit's own test suite by using a git worktree, because `.git` is a file there
+and the hygiene check only excluded a directory of that name. The bug was real
+beyond the worktree: a worktree created under the configuration directory sits
+inside the tree the main checkout scans, so the main checkout would have begun
+failing too. It was found by running the tests rather than by reasoning about
+them, which is the argument the repository makes about prose and mechanism,
+turned on the repository.
+
+**Three method notes the next session should not have to rediscover.**
+
+- A subagent's transcript is filed under the slug of the *working directory*.
+  Move into a worktree and the transcripts move with you. Anyone applying the
+  README's "prove which model ran" recipe after a worktree switch has to look
+  under the worktree's slug.
+- The telemetry log is appended every poll. Ground truth taken to check a scan
+  of it can go stale between two commands, and did: both agents' row counts
+  were right and the checker's was the stale one. Timestamp the ground truth
+  or the verification invents a discrepancy.
+- The file that caused the incident was found from session transcripts, not
+  from the filesystem. It sits in a service's dot-directory that no sweep of
+  the obvious places would reach. When something is missing, the transcripts
+  are evidence.
+
+**Next.** Mark asked for a public write-up of the problem and the kit, to be
+drafted now and read later. Beyond that the queue is unchanged: the Goldshell
+tranche, which is the work all of this was meant to make cheaper and better
+judged, and then the Mac gate, the three-strikes edit hook, the dispatch hook
+and the restructure of the shared instructions.
