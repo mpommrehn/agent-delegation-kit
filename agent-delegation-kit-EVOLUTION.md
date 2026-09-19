@@ -331,3 +331,67 @@ which now records the tiering as demonstrated rather than assumed and keeps the
 unexercised types honest, and the hygiene test fix. The raw commands and output
 live in the gitignored evidence directory, because they name local paths.
 Ninety-six tests pass.
+
+---
+
+## 2026-09-18, session 3, addendum: the trigger file found, and the Haiku advice revised
+
+Mark read the verification, named a file of his own for the scan test, and
+asked where the 6.3 MB CSV had gone, suggesting it was local rather than in
+git and that earlier session transcripts might say. Both were right, and both
+changed the conclusion above.
+
+**The file.** It is the gbox service's own `log.csv`, in a dot-directory under
+the home directory, which is why no repository holds it. A `scanner` found it
+by grepping session transcripts for the comma-formatted token figure and
+reading the surrounding sentence, then matching the path against disk; it
+noted, unprompted, that a filesystem sweep alone would have missed it because
+that directory was not in the list it had been given. Two properties matter
+more than the path. The log is **live**, 6.3 MB when it caused the incident and
+7.55 MB now, so the careless delegation gets dearer every day. And its schema
+changed partway through: the later columns are empty for the first third of the
+file, which is what the sibling `log.csv.pre-0.6.0` is a relic of. An average
+over one of those columns, taken naively, is wrong.
+
+**A hazard the session walked into while checking.** Ground truth was taken
+twice, minutes apart, and the row count had moved, because the log is appended
+every poll. Both agents' counts were right when they ran; the *checker's*
+number was the stale one. Verifying a scan of a live file means timestamping
+the ground truth, or the verification invents a discrepancy.
+
+**The comparison, re-run on the real thing.** Both models got every checkable
+number right on a 7.5 MB, 37,500-row file: rows, span, error count, error
+rate, mean and maximum of the partly-populated column, and the exact row where
+the schema changes. Both grouped ten distinct error strings sensibly and
+differently, Haiku by symptom and Sonnet by subsystem, Sonnet's split pulling
+authentication failures out as their own mode. Haiku volunteered a correct
+clustering result that Sonnet had explicitly listed as not checked.
+
+**The cost argument reversed.** On the file this session had picked, Haiku cost
+2.5 times as much. On the two files Mark named it cost **less**: 19% fewer
+tokens on the telemetry log, 17% fewer on the curl transcript. The earlier
+claim that Haiku is dearer was true of one file and is not a general result.
+Recorded as a correction rather than quietly smoothed.
+
+**What survives is calibration.** In two of three tasks Haiku's prose claimed
+more than its own correct numbers supported: an endpoint that "appears stable"
+after a race test that could not have detected a race, and a miner that
+"continues functioning even when monitoring can't reach it", which a timeout
+does not establish. Sonnet hedged where the evidence was thin and ended its
+report with a list of what it had not checked. For a type that exists so the
+dispatching session can act on a conclusion **without reading the data**, an
+overconfident conclusion is the expensive failure. A few thousand tokens is
+not.
+
+**Recommendation, revised and still Mark's to settle:** keep `scanner` on
+Sonnet, on calibration grounds alone. Drop the cost argument, which the
+evidence no longer supports. If the cheaper tier is wanted anyway, the fix
+belongs in the prompt rather than the model: require a "what I did not check"
+section and forbid verdicts the columns cannot carry.
+
+**The number worth remembering.** The incident that started this repository
+spent 74,381 tokens on that file. The same class of question, on a file now 20%
+larger, cost 17,400 tokens on Sonnet and 14,131 on Haiku. Four to five times
+cheaper, and it comes from the type's "find the shape, then query it"
+discipline rather than from the tier. That is the kit working, measured on the
+file that prompted it.

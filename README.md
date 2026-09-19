@@ -170,13 +170,24 @@ unrelated project directory, with no project-level definition present, also ran
 Sonnet under an Opus parent. Levels 2 and 3 of the order below work as
 described.
 
-Two further things were observed in that session rather than read in the
-documentation. A per-call `model` does outrank the definition's: `scanner`
-pins Sonnet, a dispatch passing `haiku` got Haiku. And Haiku was measured on
-one real 1,371-line scan against Sonnet: it agreed on every countable answer,
-got the one question wrong that needed a judgment rather than a grep, and used
-2.5 times the tokens and twice the wall clock getting there. `scanner` stays on
-Sonnet. One task on one file is evidence, not a law.
+A per-call `model` was also observed to outrank the definition's: `scanner`
+pins Sonnet, a dispatch passing `haiku` got Haiku.
+
+**The cheap tier was then measured against Sonnet on three real files**, from a
+1.3 KB terminal transcript to a live 7.5 MB, 37,500-row telemetry log. It got
+every checkable number right on all three, including a column populated for
+only two thirds of the big file, and on two of the three it cost *less* than
+Sonnet. Where it lost was calibration: twice its prose claimed more than its
+own correct numbers supported, while Sonnet hedged thin evidence and listed
+what it had not checked. `scanner` stays on Sonnet for that reason and not on
+cost. For a type whose output another session acts on **without reading the
+data**, an overconfident conclusion is the expensive failure.
+
+The number that makes the case for the kit is separate from the tier. The
+incident behind this repository spent 74,381 tokens reading that log. The same
+class of question, on a file since grown 20% larger, cost 17,400 tokens on
+Sonnet and 14,131 on Haiku, because `scanner` finds a file's shape and then
+queries it. Three files is still three files.
 
 `scanner` is therefore exercised. `browser-checker`, `executor` and `reviewer`
 are defined and tested for shape and **have still not been exercised on real
