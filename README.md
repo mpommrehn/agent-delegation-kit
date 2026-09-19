@@ -162,15 +162,32 @@ One model name, with a count, is a pass.
 
 ## Status
 
-`scanner` and `browser-checker` are the two types this kit was first built to
-use. `executor` and `reviewer` are defined and tested for shape, and had not
-been exercised on real work when this was written. In particular,
-`isolation: worktree` has not been tried from a directory that is not a git
-repository. The evolution log says what has been verified since.
+**The default was demonstrated on 2026-09-18**, on Windows, in a session
+separate from the one that built the kit. A `general-purpose` subagent
+dispatched with no `model` argument, from a parent session running Opus, ran
+Sonnet on every turn of its transcript. A `scanner` dispatched from an
+unrelated project directory, with no project-level definition present, also ran
+Sonnet under an Opus parent. Levels 2 and 3 of the order below work as
+described.
+
+Two further things were observed in that session rather than read in the
+documentation. A per-call `model` does outrank the definition's: `scanner`
+pins Sonnet, a dispatch passing `haiku` got Haiku. And Haiku was measured on
+one real 1,371-line scan against Sonnet: it agreed on every countable answer,
+got the one question wrong that needed a judgment rather than a grep, and used
+2.5 times the tokens and twice the wall clock getting there. `scanner` stays on
+Sonnet. One task on one file is evidence, not a law.
+
+`scanner` is therefore exercised. `browser-checker`, `executor` and `reviewer`
+are defined and tested for shape and **have still not been exercised on real
+work**. In particular, `isolation: worktree` has not been tried from a
+directory that is not a git repository. The evolution log says what has been
+verified since, and how.
 
 The behavior described under "How the model gets chosen" and "Known gaps" comes
-from the Claude Code subagent documentation as read on 2026-09-18. Check it
-against the current documentation before relying on it.
+from the Claude Code subagent documentation as read on 2026-09-18, except where
+this section says it was observed. Check it against the current documentation
+before relying on it.
 
 ## Tests
 

@@ -229,3 +229,105 @@ and one on Sonnet: the pattern this kit exists to end.
 the context checkpoint. Verification (V1 to V3) is the first thing the next
 session does, from `STATUS.md`, before any Goldshell work relies on the
 tiering.
+
+---
+
+## 2026-09-18, session 3: verification, and Haiku measured
+
+The first session that did not build anything. It ran the verification brief
+from the plan, in a fresh context, because the maker does not verify its own
+work and could not have anyway: the definitions had only just been installed.
+
+**V1, the question the whole kit rested on.** A `general-purpose` subagent was
+dispatched with no `model` argument and no mention of a model in its prompt,
+and asked to count the lines in a file. The parent session was running Opus 5.
+Every assistant turn in the subagent's transcript says `claude-sonnet-5`. So
+the `env` block of the user settings file does deliver
+`CLAUDE_CODE_SUBAGENT_MODEL` to subagent model resolution. This had been
+listed as not verified since the plan was written, with a fallback ready
+(set it as a Windows user environment variable instead). The fallback is not
+needed on this machine and has been struck from the status document.
+
+**V2, and a correction to the plan.** The brief wanted a named type dispatched
+from the Goldshell project directory, to settle whether a session launched two
+levels down finds a user-level definition. A subagent dispatched from the kit's
+own session would have inherited the wrong directory and settled nothing, so
+V2 ran as a headless session actually launched in the Goldshell directory,
+which then dispatched `scanner`. The transcript, filed under the Goldshell
+project slug, says `agentType: scanner` and `claude-sonnet-5`, under a parent
+on Opus. User-level definitions are found from a project directory two levels
+down, with no project-level copy present.
+
+Two things worth recording rather than smoothing over. The plan said the
+Goldshell project has no `.claude` directory; it has one now, holding
+worktrees and no agent definitions, so the premise held. And the headless
+session's scanner was refused the file read, because a session launched in one
+project may not read a path outside it. That is a working-directory permission
+boundary, not a tiering result, and it is the reason V2 returned no line count.
+
+**V2 proves less than it looks.** `scanner` pins `model: sonnet` in frontmatter
+and the environment variable also says `sonnet`. Both layers point at the same
+answer, so V2 alone cannot say which decided it. V1 is the clean test of the
+variable, because `general-purpose` has no frontmatter to pin. Said here
+because a verification that quietly claims more than it showed is worse than
+none.
+
+**V3, and level 1 beating level 2.** The same scan was run twice, once as
+`scanner` is defined and once with `model: "haiku"` on the call. Haiku ran.
+That is the documented precedence order observed on this machine from a
+transcript rather than taken from the documentation: a per-call model outranks
+the definition. It is also the third known gap in the README, demonstrated. The
+kit prevents forgetting. It does not prevent deciding.
+
+**Haiku measured, and the answer was no.** The scan was a 1,371-line browser
+file, four questions: two counts, a list of backend endpoints, and how the page
+keeps two requests off the miner at once. Mark was not available to name the
+file, so the session picked one and flagged the choice for him to overrule; the
+6.3 MB CSV that started all this is not in the Goldshell repository.
+
+Both models got the counts and the timers exactly right, and both described the
+`busy` flag correctly. On the endpoint list they disagreed, and Haiku was wrong
+in both directions: it dropped two real backend endpoints, and it folded eight
+miner firmware paths, which sit on a different host behind a different token,
+into a list it headed "backend API paths". Sonnet listed the backend endpoints
+and then said separately that the miner paths reach the wire through the same
+generic sender, which is the distinction the question existed to draw. Sonnet
+also found three endpoints built as fields on request objects rather than as
+literal fetch arguments, which the dispatching session's own grep had missed.
+
+The cost went the wrong way too. Haiku took 2.5 times the tokens and twice the
+wall clock: thirty assistant turns against fifteen, and each turn re-read the
+context, which is where a 6.4-fold cache-read figure comes from. Per token
+Haiku is far cheaper, so on price the two land near each other; on latency
+Haiku is plainly worse, and the token saving the change was meant to buy never
+appeared.
+
+**Recommendation, Mark's to accept or refuse:** leave `scanner` on Sonnet. One
+task on one file is evidence, not a law, and a purely mechanical counting job
+with no classification in it might still go to Haiku. But the case for moving
+the type wholesale is not there.
+
+**V4 not run**, as the brief allows: no page check was queued, so
+`browser-checker` remains defined and not exercised. `executor` likewise, and
+with it `isolation: worktree` from a directory that is not a git repository.
+Both are still unexercised and the README still says so. Four dispatches, the
+budget the brief set, no error twice.
+
+**A test that the session's own working method broke.** The verification work
+was done in a git worktree, and the hygiene check failed at once. In a normal
+clone `.git` is a directory and `--exclude-dir=.git` skips it; in a worktree
+`.git` is a *file* holding an absolute `gitdir:` path, which is exactly the
+shape the leak detector hunts for, and `--exclude-dir` does not skip a file.
+The same failure reaches the main checkout, because a worktree created under
+`.claude/` puts one of those files inside the tree the main checkout scans. The
+fix is `--exclude=.git` alongside `--exclude-dir=.git`, with the reason written
+above the function. Proved both ways, per the rule in `AGENTS.md`: a leak
+planted in a throwaway file was caught, and a leak planted in `.gitattributes`
+was caught too, which is what rules out the new exclusion quietly swallowing
+every dotfile whose name starts with `.git`.
+
+**What changed in the repository.** This entry, the README's Status section,
+which now records the tiering as demonstrated rather than assumed and keeps the
+unexercised types honest, and the hygiene test fix. The raw commands and output
+live in the gitignored evidence directory, because they name local paths.
+Ninety-six tests pass.

@@ -271,6 +271,13 @@ echo "== public-repo hygiene"
 # layer gets to reinterpret a long alternation. Backslashes are written as a
 # bracket expression because a bare escaped backslash did not survive every
 # platform's argument handling.
+#
+# `.git` is excluded twice on purpose. In a normal clone it is a directory; in
+# a git worktree it is a file holding an absolute `gitdir:` path, which the
+# first pattern below would report as a leak. `--exclude-dir` does not skip a
+# file, so `--exclude` is needed too. This bites in both directions: checking
+# out a worktree under `.claude/` also puts one of those files inside the tree
+# the main checkout scans.
 leaks() {
   grep -rIlE \
     -e '[A-Za-z]:[\\/]+Users[\\/]' \
@@ -281,8 +288,8 @@ leaks() {
     -e '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}' \
     -e '(gh[pousr]_|github_pat_)[A-Za-z0-9_]{20,}' \
     -e 'sk-[A-Za-z0-9_-]{20,}' \
-    "$1" --exclude-dir=.git --exclude-dir=evidence --exclude=STATUS.md \
-    --exclude=run-tests.sh --exclude=LICENSE 2>/dev/null
+    "$1" --exclude-dir=.git --exclude=.git --exclude-dir=evidence \
+    --exclude=STATUS.md --exclude=run-tests.sh --exclude=LICENSE 2>/dev/null
 }
 
 # First prove the detector detects. Fixtures are assembled from pieces so that
