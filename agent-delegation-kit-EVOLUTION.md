@@ -191,3 +191,35 @@ the project, and it was worth it.
 documentation by a subagent and not confirmed by a second source. The symlink
 tests cannot run on the Windows machine this was built on and need a run on
 macOS or Linux.
+
+---
+
+## 2026-09-18, session 2, addendum: commits, and a live reload
+
+**Question from Mark.** An earlier session had remarked that letting a
+delegated agent commit was fine for his own projects but not for most
+commercial settings, where the upper tier checks and commits. How did the
+kit handle it? Answer: by omission. `executor` said "commit nothing
+half-done", which implies it may commit, and nothing mentioned push or merge.
+
+**Decision, Mark's: fix it now.** The rule is separation of duties, as for a
+human developer: the executor commits on its own worktree branch only, with a
+`Made-by` trailer, and never pushes, merges, rebases, amends, tags or
+releases. Integration belongs to the dispatching session or a human who has
+read the diff and the evidence. The alternative considered, leaving the work
+uncommitted for the reviewer to commit, was rejected: an uncommitted diff in
+an auto-cleaned worktree can be lost. The README says the rule is prompt, not
+enforcement, and that a commercial setup needs a protected default branch,
+required review, and an executor with no push credential.
+
+**Observed, not claimed.** After the definitions were installed, this same
+session's harness listed the four types as available, without a restart.
+The vendor documentation says a brand-new agents directory is noticed only
+at session start. One observation; the README's warning stands until a
+second machine confirms either way.
+
+**Also done.** The Goldshell project's own `AGENTS.md` now names `scanner`
+and forbids `Explore`, so sessions launched there get the rule without the
+user-level memory, which is keyed to a different directory. An audit of that
+project's six earlier subagent transcripts found five on the top-tier model
+and one on Sonnet: the pattern this kit exists to end.
