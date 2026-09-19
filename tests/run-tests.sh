@@ -307,8 +307,9 @@ hits="$(leaks "$root")"
 if [ -z "$hits" ]; then ok "no local paths, addresses or tokens in tracked files"
 else bad "no local paths, addresses or tokens in tracked files" "$hits"; fi
 
-if [ -f "$root/$(basename "$root")-EVOLUTION.md" ]; then ok "evolution log is named after the directory"
-else bad "evolution log is named after the directory"; fi
+# Named after the project, not after whatever directory a clone landed in.
+if [ -f "$root/agent-delegation-kit-EVOLUTION.md" ]; then ok "evolution log is present under the project's name"
+else bad "evolution log is present under the project's name"; fi
 
 echo
 echo "$pass passed, $fail failed"
