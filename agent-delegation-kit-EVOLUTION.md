@@ -515,3 +515,23 @@ judgement calls, two of them backwards.
 
 **Nothing here has been applied.** The seven proposals are Mark's to accept or
 reject, and a session focused on the kit should start from the field notes.
+
+## 2026-09-26 (9fb77a0e): a brief sized past the turn cap
+
+**What happened.** A fix-round brief for another project asked the executor for
+three blockers, seven nits, new tests and a fail-then-pass proof per blocker,
+with a budget of "about 150 tool calls". The definition caps the executor at
+`maxTurns: 60`. The dispatching session never read the cap. The executor hit
+it twice with no report: the first time with uncommitted edits and no tests,
+the second mid-proof with a deliberate re-break still in the tree. Both times
+the work was recovered by resuming the agent. The brief also left out the line
+the 2026-09-19 entry found worth defending, "an unfinished write-up is a
+success", and asked for the evidence file only at the end.
+
+**Decision (Mark's choice of three options).** Keep the cap at 60 as a
+stop-loss and size briefs to it, rather than raising it to about 100 (cheaper
+to set up, but a runaway spends more before stopping). The brief template now
+says to read `maxTurns` first, budget in turns below it, count a proof as 4 to
+6 turns, and split work that does not fit into two dispatches. And the evidence
+file is written as the work goes, in the template and in the executor
+definition, so a cut-off leaves a record.

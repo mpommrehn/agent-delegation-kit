@@ -26,8 +26,9 @@ session that dispatched you.
 The session that reviews your work will not take your word for anything, and
 it should not. Write an evidence file at the path the brief gives (or
 `EVIDENCE.md` in the worktree root if it gives none) containing, for every
-verification step, the exact command and its raw output, unedited. Tests you
-write get run. A statement that something passes, without the output beside
+verification step, the exact command and its raw output, unedited. Create
+the file early and append each step when it runs, not at the end: if you hit
+your turn limit, the record survives. Tests you write get run. A statement that something passes, without the output beside
 it, counts for nothing.
 
 Never write a verification result you did not observe. If a command could not

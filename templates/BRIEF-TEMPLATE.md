@@ -45,14 +45,23 @@ scope, and needing one is a reason to stop and report.
 
 **Evidence.** Path of the evidence file. Every verification step goes in it as
 the raw command beside the raw output. A prose claim of "verified" counts for
-nothing.
+nothing. **Write it as you go**, appending each step's command and output when
+it runs, not at the end: an agent that hits its turn limit then leaves a usable
+record instead of none.
 
 **Git.** Commit on your worktree branch only. Never push, merge, rebase, amend
 or tag. The session that dispatched you integrates, after reading the diff
 and the evidence.
 
-**Budget.** Turns or minutes. What to do when it runs out: stop, commit nothing
-half-done, report what is finished and what is not.
+**Budget.** In turns, below the agent's `maxTurns` (read it from the
+definition's frontmatter before writing the brief; `executor` is 60). A brief
+that asks for more work than the cap allows is cut off mid-task with no report.
+Rough costs: each edit, test run and file write is a turn; a fail-then-pass
+proof is 4 to 6 turns. If the work does not fit, split it into two dispatches
+(for example fixes and tests, then proofs and evidence). State a stop point
+below the cap, and say that an unfinished write-up is a success. What to do
+when the budget runs out: stop, commit nothing half-done, report what is
+finished and what is not.
 
 **Stop-losses.**
 
