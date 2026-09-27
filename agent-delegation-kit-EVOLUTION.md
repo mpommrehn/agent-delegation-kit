@@ -535,3 +535,26 @@ says to read `maxTurns` first, budget in turns below it, count a proof as 4 to
 6 turns, and split work that does not fit into two dispatches. And the evidence
 file is written as the work goes, in the template and in the executor
 definition, so a cut-off leaves a record.
+
+## 2026-09-26 (9fb77a0e), later: the first fix did not work
+
+The same day's fix (size the brief to `maxTurns`, state a stop point below it)
+was tried at once on a smaller round: two fixes, a budget of 35 turns, "stop
+by turn 45". The executor ran to 60 again with uncommitted work and an
+evidence file holding one word. Asked afterwards, it said it had not known its
+turn count at any point, and that it had put off the evidence and the proofs
+to batch them at the end. It also reported a real loss: restoring a file with
+`git checkout --` after a deliberate re-break discarded a second, finished,
+uncommitted fix in the same file, and it had to redo it.
+
+**Finding.** A limit the agent cannot observe is not a limit. The cap is the
+only hard stop; what can be controlled is how much a cut-off loses.
+
+**Change (Mark approved).** "Stop by turn N" is out of the template. Budget
+guidance is now empirical (two small fixes with proofs took more than 60
+turns: plan one or two per dispatch). Checkpoints are actions the agent can
+take without counting: commit after every finished step and before every
+deliberate re-break, append to the evidence file after every test run. The
+executor definition carries the same rule, and its out-of-budget line now says
+to commit WIP on the branch rather than "commit nothing half-done", which had
+been what left finished work uncommitted.

@@ -56,12 +56,19 @@ and the evidence.
 **Budget.** In turns, below the agent's `maxTurns` (read it from the
 definition's frontmatter before writing the brief; `executor` is 60). A brief
 that asks for more work than the cap allows is cut off mid-task with no report.
-Rough costs: each edit, test run and file write is a turn; a fail-then-pass
-proof is 4 to 6 turns. If the work does not fit, split it into two dispatches
-(for example fixes and tests, then proofs and evidence). State a stop point
-below the cap, and say that an unfinished write-up is a success. What to do
-when the budget runs out: stop, commit nothing half-done, report what is
-finished and what is not.
+Size from experience, not arithmetic: two small fixes with tests and
+fail-then-pass proofs used more than 60 turns (2026-09-26), so plan one or two
+fixes per dispatch and split anything larger. **Do not write "stop by turn N"**:
+an agent cannot see its own turn count, so it cannot obey it (tried
+2026-09-26, the agent ran to the cap). The cap is the hard stop; what makes
+hitting it cheap is checkpointing by action (next paragraph). Say that an
+unfinished write-up is a success.
+
+**Checkpoints by action.** Tell the agent: commit on your branch after every
+finished step and **before every deliberate re-break** (a `git checkout --
+<file>` restore also discards any uncommitted edit in that file: this lost a
+finished fix on 2026-09-26); append to the evidence file after every test
+run. Then a cut-off at the cap loses at most one step.
 
 **Stop-losses.**
 
