@@ -68,17 +68,34 @@ def tool_uses(rec):
 
 
 def split_segments(records):
-    """Split records into segments. Each starts at a string-content user line
-    (the brief, or a resume). Records before the first such line form a
-    segment of their own."""
+    """Split records into segments. Each starts at a string-content, non-isMeta
+    user line (the brief, or a resume). Records before the first such line
+    (attachments and the like) do not form a segment. A file with no such
+    line at all is treated as one segment so its calls are still checked."""
     segments = []
     current = None
     for rec in records:
-        if is_segment_start(rec) or current is None:
+        if is_segment_start(rec):
             current = []
             segments.append(current)
-        current.append(rec)
-    return segments
+        if current is not None:
+            current.append(rec)
+    return segments or [list(records)]
+
+
+def last_block(seg):
+    """The last text or tool_use block of the assistant records in a segment."""
+    last = None
+    for rec in seg:
+        if rec.get("type") != "assistant":
+            continue
+        content = _content(rec)
+        if not isinstance(content, list):
+            continue
+        for b in content:
+            if isinstance(b, dict) and b.get("type") in ("text", "tool_use"):
+                last = b
+    return last
 
 
 # ---------------------------------------------------------------- checks
@@ -88,11 +105,27 @@ def check_no_handback(run):
     """FAIL for any segment with tool calls that does not end with a
     SubagentHandback tool_use."""
     out = []
+    era = not any(
+        b.get("name") == "SubagentHandback" for rec in run.records for b in tool_uses(rec)
+    )
     for i, seg in enumerate(run.segments, 1):
         calls = [b for rec in seg for b in tool_uses(rec)]
         if not calls:
             continue
         if calls[-1].get("name") != "SubagentHandback":
+            lb = last_block(seg)
+            if era and lb is not None and lb.get("type") == "text":
+                # No SubagentHandback anywhere in the file, and the segment
+                # ends in prose: an older transcript, or a text-only ending.
+                out.append(
+                    Finding(
+                        "WARN",
+                        "no-handback",
+                        "segment %d: pre-handback-era transcript or text-only "
+                        "ending; cannot confirm completion" % i,
+                    )
+                )
+                continue
             out.append(
                 Finding(
                     "FAIL",
@@ -114,7 +147,7 @@ def check_model_tier(run):
     model pinned in meta). Unpinned general-purpose or Explore agents should
     not run on a frontier model."""
     atype = run.agent_type
-    if atype is None:
+    if atype is None or run.meta_model == "inherit":
         return []
     counts = {}
     for rec in run.records:
@@ -226,34 +259,55 @@ def forbidden_reason(sub):
         return "git tag (creates a tag)"
     # Whole-tree restores always flag. Single-path restores are judged by
     # check_discarded_work instead.
-    kind, paths = restore_paths(s)
-    if kind and "." in paths and not (kind == "restore" and "--staged" in s):
-        return "git %s . (discards the whole tree)" % kind
+    kind, paths, staged_only = restore_paths(s)
+    if kind and not staged_only and any(p in WHOLE_TREE for p in paths):
+        return "git %s of the whole tree" % kind
     if verb == "reset" and "--hard" in args:
         return "git reset --hard"
     if verb == "clean" and any(re.fullmatch(r"-\w*f\w*", a) or a == "--force" for a in args):
         return "git clean -f"
     if re.search(r"\bpkill\b.*\s-\w*f", s):
         return "pkill -f"
-    if re.search(r"\btaskkill\b.*\s/im\b", low):
+    if re.search(r"\btaskkill\b.*\s(//?|-)im\b", low):
         return "taskkill /IM"
     if "commandline -like" in low:
         return "CommandLine -like"
     return None
 
 
+SHELL_TOOLS = ("Bash", "PowerShell")
+WHOLE_TREE =(".", "./", "*", ":/", ":/.")
+
+
 def restore_paths(sub):
-    """(kind, paths) for a `git checkout -- ...` / `git checkout .` /
-    `git restore ...` sub-command, else (None, [])."""
+    """(kind, paths, staged_only) for a `git checkout -- ...` /
+    `git checkout .` / `git restore ...` sub-command, else (None, [], False).
+    staged_only is True for `git restore` with --staged/-S and without
+    --worktree/-W: that touches the index, never the working tree."""
     verb, rest = git_verb(sub)
     if verb == "checkout":
         if "--" in rest:
-            return "checkout", rest[rest.index("--") + 1:]
-        if rest == ["."]:
-            return "checkout", ["."]
+            return "checkout", rest[rest.index("--") + 1:], False
+        if len(rest) == 1 and rest[0] in WHOLE_TREE:
+            return "checkout", rest, False
     elif verb == "restore":
-        return "restore", [a for a in rest if not a.startswith("-")]
-    return None, []
+        flags = [a for a in rest if a.startswith("-")]
+        staged = wt = False
+        for a in flags:
+            if a == "--staged" or (not a.startswith("--") and "S" in a):
+                staged = True
+            if a == "--worktree" or (not a.startswith("--") and "W" in a):
+                wt = True
+        paths, skip = [], False
+        for a in rest:
+            if skip:
+                skip = False
+            elif a in ("-s", "--source"):
+                skip = True
+            elif not a.startswith("-"):
+                paths.append(a)
+        return "restore", paths, staged and not wt
+    return None, [], False
 
 
 def _norm(p):
@@ -264,8 +318,15 @@ def _norm(p):
 
 
 def _same_file(edited, restored):
+    """Suffix match on a file, or on a directory (restored path names a
+    directory that holds the edited file)."""
     e, r = _norm(edited), _norm(restored)
-    return bool(r) and (e == r or e.endswith("/" + r))
+    if not r:
+        return False
+    if e == r or e.endswith("/" + r):
+        return True
+    d = r.rstrip("/")
+    return bool(d) and ("/" + d + "/") in ("/" + e)
 
 
 def check_discarded_work(run):
@@ -287,16 +348,16 @@ def check_discarded_work(run):
                 name = b.get("name")
                 if name in ("Edit", "Write") and isinstance(inp.get("file_path"), str):
                     pending.append(inp["file_path"])
-                elif name == "Bash" and isinstance(inp.get("command"), str):
+                elif name in SHELL_TOOLS and isinstance(inp.get("command"), str):
                     for sub in _SPLIT.split(inp["command"]):
                         if git_verb(sub)[0] == "commit":
                             pending = []
                             continue
-                        kind, paths = restore_paths(sub)
-                        if not kind or (kind == "restore" and "--staged" in sub):
+                        kind, paths, staged_only = restore_paths(sub)
+                        if not kind or staged_only:
                             continue
                         for p in paths:
-                            if p != "." and any(_same_file(e, p) for e in pending):
+                            if p not in WHOLE_TREE and any(_same_file(e, p) for e in pending):
                                 out.append(
                                     Finding(
                                         "WARN",
@@ -314,7 +375,7 @@ def check_forbidden_command(run):
     out = []
     for rec in run.records:
         for b in tool_uses(rec):
-            if b.get("name") != "Bash":
+            if b.get("name") not in SHELL_TOOLS:
                 continue
             inp = b.get("input")
             cmd = inp.get("command") if isinstance(inp, dict) else None

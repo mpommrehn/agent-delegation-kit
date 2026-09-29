@@ -393,6 +393,23 @@ for k in tag-redir tag-contains tag-points-at tag-merged tag-redir-file tag-n ta
   ev "allowed-$k" 0 "SUMMARY 0 FAIL, 0 WARN"
 done
 
+# round B
+for k in restore-both restore-SW checkout-dotslash checkout-star restore-dotslash restore-root; do
+  ev "forbidden-$k" 1 "FAIL forbidden-command"
+done
+ev allowed-restore-S 0 "SUMMARY 0 FAIL, 0 WARN"
+ev discard-dir 0 "WARN discarded-work restore discarded uncommitted edits to evals/"
+ev discard-dir-other 0 "SUMMARY 0 FAIL, 0 WARN"
+ev era-text-ending 0 "WARN no-handback segment 1: pre-handback-era"
+ev era-resumed-text-after-handback 1 "FAIL no-handback segment 2"
+ev era-cutoff-tool-use 1 "FAIL no-handback segment 1"
+ev attachment-first-clean 0 "SUMMARY 0 FAIL, 0 WARN"
+ev attachment-first-cutoff 1 "FAIL no-handback segment 1 has 2"
+for k in taskkill-slash taskkill-double taskkill-dash; do ev "ps-$k" 1 "FAIL forbidden-command taskkill /IM"; done
+ev ps-push 1 "FAIL forbidden-command git push"
+ev ps-clean 0 "SUMMARY 0 FAIL, 0 WARN"
+ev model-meta-inherit 0 "SUMMARY 0 FAIL, 0 WARN"
+
 # harness behaviour
 ev malformed-line 0 "WARN parse line 3"
 ev missing-meta 0 "WARN meta no meta file"
