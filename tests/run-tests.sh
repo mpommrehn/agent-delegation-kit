@@ -410,6 +410,18 @@ ev ps-push 1 "FAIL forbidden-command git push"
 ev ps-clean 0 "SUMMARY 0 FAIL, 0 WARN"
 ev model-meta-inherit 0 "SUMMARY 0 FAIL, 0 WARN"
 
+# round C: separators, heredocs, small misses
+for k in nl-push nl-crlf-push nl-tag bg-push heredoc-then-push paren-push gitexe-push \
+         checkout-quoted-dot checkout-glob checkout-f; do
+  ev "forbidden-c-$k" 1 "FAIL forbidden-command"
+done
+for k in redir-amp redir-amp-gt nl-clean heredoc-quoted heredoc-dq heredoc-dash \
+         heredoc-python checkout-branch paren-clean; do
+  ev "allowed-c-$k" 0 "SUMMARY 0 FAIL, 0 WARN"
+done
+ev gopt-nl-commit-then-restore 0 "SUMMARY 0 FAIL, 0 WARN"
+ev gopt-nl-no-commit-restore 0 "WARN discarded-work"
+
 # harness behaviour
 ev malformed-line 0 "WARN parse line 3"
 ev missing-meta 0 "WARN meta no meta file"

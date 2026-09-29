@@ -1,4 +1,4 @@
 {"type": "user", "message": {"role": "user", "content": "Do the task."}}
-{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_155", "name": "Bash", "input": {"command": "ls"}}]}}
-{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_155", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_199", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_199", "content": "ok", "is_error": false}]}}
 {"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "text", "text": "all done"}]}}
