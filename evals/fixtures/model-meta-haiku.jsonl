@@ -1,0 +1,4 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-haiku-4-5-20251001", "content": [{"type": "tool_use", "id": "toolu_015", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_015", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-haiku-4-5-20251001", "content": [{"type": "tool_use", "id": "toolu_016", "name": "SubagentHandback", "input": {"message": "done"}}]}}

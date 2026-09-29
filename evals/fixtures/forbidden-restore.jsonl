@@ -1,0 +1,4 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_041", "name": "Bash", "input": {"command": "git restore file.txt"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_041", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_042", "name": "SubagentHandback", "input": {"message": "done"}}]}}

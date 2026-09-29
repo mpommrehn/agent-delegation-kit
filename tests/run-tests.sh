@@ -326,6 +326,66 @@ else bad "no local paths, addresses or tokens in tracked files" "$hits"; fi
 if [ -f "$root/agent-delegation-kit-EVOLUTION.md" ]; then ok "evolution log is present under the project's name"
 else bad "evolution log is present under the project's name"; fi
 
+echo "== evals"
+
+# ev NAME EXPECTED-EXIT PATTERN: run the checker on evals/fixtures/NAME.jsonl,
+# assert the exit code and that PATTERN (a fixed string) appears in the output.
+# PATTERN "-" means the output must hold no FAIL line.
+evcheck="$root/evals/check-run.sh"
+ev() {
+  local out rc
+  out="$(bash "$evcheck" "$root/evals/fixtures/$1.jsonl" 2>&1)"; rc=$?
+  if [ "$rc" -ne "$2" ]; then bad "evals: $1" "expected exit $2, got $rc: $out"; return; fi
+  if [ "$3" = "-" ]; then
+    case "$out" in *"FAIL "*) bad "evals: $1" "unexpected FAIL: $out" ;; *) ok "evals: $1" ;; esac
+  else
+    case "$out" in *"$3"*) ok "evals: $1" ;; *) bad "evals: $1" "missing '$3' in: $out" ;; esac
+  fi
+}
+
+# check 1: no-handback
+ev clean-executor 0 "SUMMARY 0 FAIL, 0 WARN"
+ev no-handback 1 "FAIL no-handback segment 1 has 2 tool_use"
+ev resumed-no-handback 1 "FAIL no-handback segment 1 has 1 tool_use"
+ev resumed-ok 0 "SUMMARY 0 FAIL, 0 WARN"
+ev no-tool-calls 0 "-"
+
+# check 2: model-tier
+ev model-executor-opus 1 "FAIL model-tier"
+ev model-meta-haiku 0 "SUMMARY 0 FAIL, 0 WARN"
+ev model-meta-mismatch 1 "FAIL model-tier"
+ev model-scanner-haiku-unpinned 1 "FAIL model-tier"
+ev model-gp-opus 0 "WARN model-tier unpinned agent on frontier model"
+ev model-gp-sonnet 0 "SUMMARY 0 FAIL, 0 WARN"
+ev model-gp-opus-pinned 0 "SUMMARY 0 FAIL, 0 WARN"
+ev model-reviewer-opus 0 "SUMMARY 0 FAIL, 0 WARN"
+
+# check 3: forbidden-command
+for k in push merge tag-create tag-annotated checkout-dashes checkout-dot restore \
+         reset-hard clean-f pkill-f taskkill-im commandline-like semicolon; do
+  ev "forbidden-$k" 1 "FAIL forbidden-command"
+done
+# Known limitation, on purpose: quotes are not parsed, so a quoted mention flags.
+ev forbidden-quoted-echo 1 "FAIL forbidden-command"
+for k in tag-l tag-list tag-bare merge-base restore-staged pipe-grep clean-dry status; do
+  ev "allowed-$k" 0 "SUMMARY 0 FAIL, 0 WARN"
+done
+
+# harness behaviour
+ev malformed-line 0 "WARN parse line 3"
+ev missing-meta 0 "WARN meta no meta file"
+ev meta-meta-only 0 "SUMMARY 0 FAIL, 0 WARN"
+
+out="$(bash "$evcheck" 2>&1)"; rc=$?
+check_exit "evals: no arguments exits 2" 2 "$rc"
+out="$(bash "$evcheck" "$root/evals/fixtures/does-not-exist.jsonl" 2>&1)"; rc=$?
+check_exit "evals: missing transcript exits 2" 2 "$rc"
+out="$(bash "$evcheck" "$root/evals/fixtures/no-handback.jsonl" --json 2>&1)"; rc=$?
+case "$out" in *'"check": "no-handback"'*) ok "evals: --json names the check" ;;
+  *) bad "evals: --json names the check" "$out" ;; esac
+out="$(bash "$evcheck" "$root/evals/fixtures/clean-executor.jsonl" --meta "$root/evals/fixtures/model-meta-mismatch.meta.json" 2>&1)"; rc=$?
+check_exit "evals: --meta overrides the sibling meta" 1 "$rc"
+
 echo
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

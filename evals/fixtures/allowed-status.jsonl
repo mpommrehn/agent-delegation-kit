@@ -1,0 +1,4 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_071", "name": "Bash", "input": {"command": "git status && git diff --stat"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_071", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_072", "name": "SubagentHandback", "input": {"message": "done"}}]}}

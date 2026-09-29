@@ -1,0 +1,4 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_029", "name": "Bash", "input": {"command": "git add . && git push origin main"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_029", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_030", "name": "SubagentHandback", "input": {"message": "done"}}]}}
