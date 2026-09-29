@@ -1,0 +1,10 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_091", "name": "Edit", "input": {"file_path": "/work/proj/src/a.py"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_091", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_092", "name": "Bash", "input": {"command": "git commit -am wip"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_092", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_093", "name": "Edit", "input": {"file_path": "/work/proj/src/b.py"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_093", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_094", "name": "Bash", "input": {"command": "git checkout -- src/a.py"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_094", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_095", "name": "SubagentHandback", "input": {"message": "done"}}]}}

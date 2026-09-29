@@ -1,5 +1,5 @@
 {"type": "user", "message": {"role": "user", "content": "Do the task."}}
-{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_073", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_075", "name": "Bash", "input": {"command": "ls"}}]}}
 {this is not json
-{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_073", "content": "ok", "is_error": false}]}}
-{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_074", "name": "SubagentHandback", "input": {"message": "done"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_075", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_076", "name": "SubagentHandback", "input": {"message": "done"}}]}}

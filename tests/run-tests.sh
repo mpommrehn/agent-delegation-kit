@@ -362,7 +362,7 @@ ev model-reviewer-opus 0 "SUMMARY 0 FAIL, 0 WARN"
 
 # check 3: forbidden-command
 for k in push merge tag-create tag-annotated checkout-dashes checkout-dot restore \
-         reset-hard clean-f pkill-f taskkill-im commandline-like semicolon; do
+         restore-worktree-dot reset-hard clean-f pkill-f taskkill-im commandline-like semicolon; do
   ev "forbidden-$k" 1 "FAIL forbidden-command"
 done
 # Known limitation, on purpose: quotes are not parsed, so a quoted mention flags.
@@ -370,6 +370,16 @@ ev forbidden-quoted-echo 1 "FAIL forbidden-command"
 for k in tag-l tag-list tag-bare merge-base restore-staged pipe-grep clean-dry status; do
   ev "allowed-$k" 0 "SUMMARY 0 FAIL, 0 WARN"
 done
+
+# check 3b: discarded-work (single-path restores, judged against Edit/Write calls)
+ev discard-edit-commit-restore 0 "SUMMARY 0 FAIL, 0 WARN"
+ev discard-no-commit 1 "FAIL discarded-work restore discarded uncommitted edits to src/a.py"
+ev discard-restore-cmd 1 "FAIL discarded-work"
+ev discard-other-file-committed 0 "SUMMARY 0 FAIL, 0 WARN"
+ev discard-backslash-case 1 "FAIL discarded-work"
+ev discard-no-edit 0 "SUMMARY 0 FAIL, 0 WARN"
+ev discard-staged 0 "SUMMARY 0 FAIL, 0 WARN"
+ev discard-commit-same-command 0 "SUMMARY 0 FAIL, 0 WARN"
 
 # harness behaviour
 ev malformed-line 0 "WARN parse line 3"
