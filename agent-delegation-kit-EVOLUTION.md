@@ -558,3 +558,64 @@ deliberate re-break, append to the evidence file after every test run. The
 executor definition carries the same rule, and its out-of-budget line now says
 to commit WIP on the branch rather than "commit nothing half-done", which had
 been what left finished work uncommitted.
+
+## 2026-09-28 (bd08582d): evals from real failures, D1 built, enforcement designed
+
+**Trigger.** Mark shared a post on X about agent evals: "Your best regression tests
+are the ones you build from real failures. Record real runs, review them,
+cluster failures by frequency x severity, write one cheap evaluator per
+failure class, rerun after every change." Asked what the kit could take from
+it. A scan showed the kit's ~96 tests were all structural; nothing tested
+agent behaviour, and every past incident had become prose with no check.
+
+**Plan (Mark chose option 1 of 3).** A failure catalog plus a deterministic
+checker over finished subagent transcripts, in three dispatches: D1 (checker
++ three checks), D2 (evidence-vs-transcript, scope, budget, mirrored-logic
+diff search, reviewer-report form), D3 (enforcement hooks). A scanner first
+confirmed transcripts record everything needed (model per turn, agent type in
+the sibling meta file, commands and results, edits, brief, handback).
+Fixtures are synthetic because the repo is public.
+
+**What D1 taught.** The hand-written fixtures passed first time; every real
+defect came from running against real transcripts. The dispatcher's spec was
+wrong twice on one rule: "flag `git checkout --`" flagged the sanctioned
+teeth-proof restore, and "flag a restore of uncommitted edits" could not tell
+a deliberate re-break from lost work, because intent is not in the
+transcript. It became a WARN (`discarded-work`). Two reviewer HOLDs, both
+with reproduced inputs, found git global options (`git -C`, `git -c`) and
+newline-separated commands escaping every matcher; the second reviewer
+measured 46 real shell calls with git on a later line. Merged after round C:
+202 tests, exit 0 observed by the dispatcher. Over all 105 real transcripts
+only two findings remain FAIL: one true maxTurns cutoff, one quoted test
+string (a documented limit).
+
+**Decisions (Mark).** All seven 2026-09-19 field-note proposals accepted, two
+in rewritten form after he pushed back. "An unfinished write-up is a success"
+conflated agent behaviour with task outcome; it becomes "an honest stop is
+correct behaviour, the task stays incomplete, the dispatcher asks why (Five
+Whys, to something controllable) before re-dispatching, never unchanged".
+"A scanner contradicting its brief is right" becomes "agents may contradict
+the brief's facts with evidence, must report but keep to its decisions, and
+the dispatcher verifies every contradiction before acting". Not yet applied
+to the template or definitions.
+
+**Pushback that changed the design.** Mark: the rules are "just prose". The
+answer maps each to prevention (hooks), automatic detection, or audit, and
+admits judgment steps can only be made visible. Hook probes in a throwaway
+headless session verified: PreToolUse on `Agent` sees subagent_type, prompt
+and model and can refuse with the reason reaching the model; hooks inside
+subagents carry agent_id and agent_type; SubagentStop gets
+agent_transcript_path. Not confirmed despite the docs: SubagentStop
+additionalContext reaching the parent, and hooks in agent frontmatter firing.
+Mark then red-teamed context injection itself: an executor could steer text
+into a system-level channel. Decision: no pushed text; a gate refuses the
+next dispatch or merge until the checker's result file is read. Also found:
+the executor could disable the guardrails, so enforcement files and
+~/.claude must be write-protected from executors and the merge gate must use
+main's checker.
+
+**Deferred.** D2 and D3 briefs are unwritten. Mark asked for a stronger
+review than the dispatcher's own; recommended: Fable as red-team reviewer of
+the written briefs, an adversarial-executor test in D3's done-when,
+/code-review ultra plus one security pass on the D3 branch, optional
+cross-family review by Grok.
