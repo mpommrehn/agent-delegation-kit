@@ -226,9 +226,12 @@ def _same_file(edited, restored):
 
 
 def check_discarded_work(run):
-    """FAIL when a single-path `git checkout -- <path>` or `git restore <path>`
+    """WARN when a single-path `git checkout -- <path>` or `git restore <path>`
     (no --staged) hits a file that an Edit or Write tool_use touched since the
     most recent Bash `git commit` (or since segment start).
+
+    Intent is not in the transcript: a teeth-proof re-break looks identical to
+    lost work, so this is a prompt for human review, not a failure.
 
     Known limit: Bash-side edits (sed -i, >, tee) are invisible here, so this
     can miss discarded work. It errs toward not flagging."""
@@ -253,7 +256,7 @@ def check_discarded_work(run):
                             if p != "." and any(_same_file(e, p) for e in pending):
                                 out.append(
                                     Finding(
-                                        "FAIL",
+                                        "WARN",
                                         "discarded-work",
                                         "restore discarded uncommitted edits to %s" % p,
                                     )

@@ -373,10 +373,10 @@ done
 
 # check 3b: discarded-work (single-path restores, judged against Edit/Write calls)
 ev discard-edit-commit-restore 0 "SUMMARY 0 FAIL, 0 WARN"
-ev discard-no-commit 1 "FAIL discarded-work restore discarded uncommitted edits to src/a.py"
-ev discard-restore-cmd 1 "FAIL discarded-work"
+ev discard-no-commit 0 "WARN discarded-work restore discarded uncommitted edits to src/a.py"
+ev discard-restore-cmd 0 "WARN discarded-work"
 ev discard-other-file-committed 0 "SUMMARY 0 FAIL, 0 WARN"
-ev discard-backslash-case 1 "FAIL discarded-work"
+ev discard-backslash-case 0 "WARN discarded-work"
 ev discard-no-edit 0 "SUMMARY 0 FAIL, 0 WARN"
 ev discard-staged 0 "SUMMARY 0 FAIL, 0 WARN"
 ev discard-commit-same-command 0 "SUMMARY 0 FAIL, 0 WARN"
