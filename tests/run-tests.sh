@@ -381,6 +381,18 @@ ev discard-no-edit 0 "SUMMARY 0 FAIL, 0 WARN"
 ev discard-staged 0 "SUMMARY 0 FAIL, 0 WARN"
 ev discard-commit-same-command 0 "SUMMARY 0 FAIL, 0 WARN"
 
+# git global options must not hide a command from any matcher
+ev gopt-push 1 "FAIL forbidden-command git push"
+ev gopt-tag-create 1 "FAIL forbidden-command git tag"
+ev gopt-checkout-dot 1 "FAIL forbidden-command"
+ev gopt-nopager-gitdir-reset 1 "FAIL forbidden-command git reset --hard"
+ev gopt-commit-then-restore 0 "SUMMARY 0 FAIL, 0 WARN"
+ev gopt-restore-no-commit 0 "WARN discarded-work"
+ev allowed-gopt-log 0 "SUMMARY 0 FAIL, 0 WARN"
+for k in tag-redir tag-contains tag-points-at tag-merged tag-redir-file tag-n tag-sort; do
+  ev "allowed-$k" 0 "SUMMARY 0 FAIL, 0 WARN"
+done
+
 # harness behaviour
 ev malformed-line 0 "WARN parse line 3"
 ev missing-meta 0 "WARN meta no meta file"
