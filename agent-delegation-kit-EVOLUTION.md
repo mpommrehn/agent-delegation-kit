@@ -619,3 +619,38 @@ review than the dispatcher's own; recommended: Fable as red-team reviewer of
 the written briefs, an adversarial-executor test in D3's done-when,
 /code-review ultra plus one security pass on the D3 branch, optional
 cross-family review by Grok.
+
+## 2026-09-29 (3094f4d3): the seven field-note decisions applied
+
+**Goal.** Mark: "pick up the agent project", then "yes, 1": apply the seven
+decisions accepted on 2026-09-28 to the brief template and the agent
+definitions, before writing the failure catalog and the D2/D3 briefs.
+
+**What changed.** The template now asks for the brief as a file path, keeps
+facts and decisions apart in Context, requires a mirrored-logic search before
+the scope list, puts evidence outside the target repo unless it keeps
+evidence files, and says stopping with a report is correct behavior while the
+task stays incomplete. "After it returns" gained four steps: verify every
+contradiction, grep the whole repo for the changed literal, re-check a
+reviewer's severity and reachability, and ask why (Five Whys, to a cause the
+dispatcher controls) before any re-dispatch, never with an unchanged brief.
+All four agents end their report with a **Contradictions** section: facts in
+the brief they found evidence against, never its decisions. The reviewer
+states reachability apart from severity, and "do not merge" needs a reachable
+defect.
+
+**Decisions by the dispatcher, flagged to Mark.** The field notes' "make the
+budget the stop number" was dropped: the 2026-09-26 finding that an agent
+cannot see its turn count supersedes it. Contradictions went into all four
+agents, not only the scanner, because Mark's rewrite of #7 is general and one
+fixed section gives D2's report check a single thing to find. New text uses
+American spelling and avoids "honest", after the style checker failed both.
+
+**Verified.** Suite 202 passed, 0 failed; style checker 0 fails on all five
+files; line endings unchanged. Pushed at Mark's word. Before reinstalling,
+each installed definition was compared byte for byte with the previous
+commit, so the forced install replaced nothing that was not in git; the
+install check then reported in sync.
+
+**Deferred.** The failure catalog, the D2a/D2b/D3 briefs and design note, and
+the Fable red-team review: the next session, from a fresh start.
