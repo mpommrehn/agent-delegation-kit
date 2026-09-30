@@ -2,6 +2,7 @@
 """Post-hoc checker for a finished subagent transcript.
 
     check_run.py <transcript.jsonl> [--meta PATH] [--json]
+                 [--max-turns N] [--agents-dir DIR]
 
 Reads the transcript and its sibling .meta.json (or --meta) and flags known
 failure classes. Output is one line per finding, "FAIL|WARN <check-id>
@@ -23,6 +24,8 @@ from collections import namedtuple
 
 Finding = namedtuple("Finding", "level check message")
 
+DEFAULT_AGENTS_DIR = os.path.join(os.path.expanduser("~"), ".claude", "agents")
+
 
 class Run:
     """A parsed transcript."""
@@ -31,6 +34,8 @@ class Run:
         self.records = records  # list of dicts, in file order
         self.meta = meta  # dict, or None when missing or unreadable
         self.segments = split_segments(records)
+        self.max_turns = None  # --max-turns override, or None
+        self.agents_dir = DEFAULT_AGENTS_DIR  # where agent definitions live
 
     @property
     def agent_type(self):
@@ -436,8 +441,93 @@ def check_forbidden_command(run):
     return out
 
 
+def assistant_messages(records):
+    """Assistant lines grouped by message.id, in order of first appearance.
+    One message is one turn, and the transcript often writes it as several
+    lines with the same id (a text or thinking line, then the tool-call
+    line). A line with no id is a message of its own."""
+    order, groups = [], {}
+    for i, rec in enumerate(records):
+        if rec.get("type") != "assistant":
+            continue
+        msg = rec.get("message")
+        mid = msg.get("id") if isinstance(msg, dict) else None
+        key = mid if isinstance(mid, str) and mid else ("line", i)
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(rec)
+    return [groups[k] for k in order]
+
+
+def agent_max_turns(run):
+    """Return (max_turns, source, warning). max_turns is None when it cannot
+    be determined: warning then says why, or is None when the agent type is
+    simply absent from the meta (nothing to look up, nothing to warn about).
+    A number is never guessed."""
+    if run.max_turns is not None:
+        return run.max_turns, "--max-turns", None
+    atype = run.agent_type
+    if atype is None:
+        return None, None, None
+    if not isinstance(atype, str) or not re.fullmatch(r"[A-Za-z0-9._-]+", atype):
+        return None, None, "skipped: unknown agent type %r" % (atype,)
+    path = os.path.join(run.agents_dir, atype + ".md")
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+    except OSError:
+        return None, None, (
+            "skipped: no definition file %s.md in the agents dir" % atype
+        )
+    lines = text.splitlines()
+    if lines and lines[0].strip() == "---":
+        for ln in lines[1:]:
+            if ln.strip() == "---":
+                break
+            m = re.fullmatch(r"maxTurns:\s*(\d+)\s*", ln.strip())
+            if m and int(m.group(1)) > 0:
+                return int(m.group(1)), "%s.md" % atype, None
+    return None, None, "skipped: %s.md has no maxTurns line in its frontmatter" % atype
+
+
+def check_cap_hit(run):
+    """FAIL when an agent ran maxTurns turns without ending: the harness cut
+    it off. Independent of resume markers, so it still fires if the resume
+    line format changes. A turn is an assistant message (lines grouped by
+    id) that holds a tool_use. The count resets at the file start, after a
+    message holding SubagentHandback, after a message with no tool_use (a
+    text-only reply ends the agent's loop), and after a report (a resumed
+    agent gets a fresh cap). No user line resets it."""
+    limit, source, warning = agent_max_turns(run)
+    if limit is None:
+        return [Finding("WARN", "cap-hit", warning)] if warning else []
+    out = []
+    turns = calls = 0
+    for msg in assistant_messages(run.records):
+        uses = [b for rec in msg for b in tool_uses(rec)]
+        if not uses or any(b.get("name") == "SubagentHandback" for b in uses):
+            turns = calls = 0
+            continue
+        turns += 1
+        calls += len(uses)
+        if turns >= limit:
+            out.append(
+                Finding(
+                    "FAIL",
+                    "cap-hit",
+                    "%d turns (%d tool calls) with no hand-back or text-only reply "
+                    "reached maxTurns %d (%s): the agent was cut off"
+                    % (turns, calls, limit, source),
+                )
+            )
+            turns = calls = 0
+    return out
+
+
 CHECKS = [
     check_no_handback,
+    check_cap_hit,
     check_model_tier,
     check_forbidden_command,
     check_discarded_work,
@@ -488,6 +578,8 @@ def main(argv):
     args = list(argv)
     as_json = False
     meta_path = None
+    max_turns = None
+    agents_dir = DEFAULT_AGENTS_DIR
     paths = []
     while args:
         a = args.pop(0)
@@ -495,16 +587,26 @@ def main(argv):
             as_json = True
         elif a == "--meta":
             if not args:
-                print("usage: check_run.py <transcript.jsonl> [--meta PATH] [--json]", file=sys.stderr)
+                print("usage: check_run.py <transcript.jsonl> [--meta PATH] [--json] [--max-turns N] [--agents-dir DIR]", file=sys.stderr)
                 return 2
             meta_path = args.pop(0)
+        elif a == "--max-turns":
+            if not args or not args[0].isdigit() or int(args[0]) < 1:
+                print("--max-turns needs a positive integer", file=sys.stderr)
+                return 2
+            max_turns = int(args.pop(0))
+        elif a == "--agents-dir":
+            if not args:
+                print("--agents-dir needs a directory", file=sys.stderr)
+                return 2
+            agents_dir = args.pop(0)
         elif a.startswith("--"):
             print("unknown option: %s" % a, file=sys.stderr)
             return 2
         else:
             paths.append(a)
     if len(paths) != 1:
-        print("usage: check_run.py <transcript.jsonl> [--meta PATH] [--json]", file=sys.stderr)
+        print("usage: check_run.py <transcript.jsonl> [--meta PATH] [--json] [--max-turns N] [--agents-dir DIR]", file=sys.stderr)
         return 2
 
     try:
@@ -512,6 +614,8 @@ def main(argv):
     except (OSError, ValueError) as exc:
         print("error: %s" % exc, file=sys.stderr)
         return 2
+    run.max_turns = max_turns
+    run.agents_dir = agents_dir
 
     for check in CHECKS:
         findings.extend(check(run))

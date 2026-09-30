@@ -1,0 +1,14 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0114", "model": "claude-sonnet-5", "content": [{"type": "text", "text": "working"}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0114", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0115", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0115", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0116", "model": "claude-sonnet-5", "content": [{"type": "text", "text": "working"}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0116", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0117", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0117", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0118", "model": "claude-sonnet-5", "content": [{"type": "text", "text": "working"}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0118", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0119", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0119", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0120", "model": "claude-sonnet-5", "content": [{"type": "text", "text": "working"}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0120", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0121", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0121", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0122", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0123", "name": "SubagentHandback", "input": {"message": "done"}}]}}

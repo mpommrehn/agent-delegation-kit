@@ -122,6 +122,41 @@ def main():
           [BRIEF] + turns(1) + [meta_user("<task-notification/>", {"kind": "task-notification"})]
           + turns(1) + handback(), EXEC)
 
+    # ---- decisions 2 to 4: cap-hit. cap5 is a test-only agent type with
+    # maxTurns 5 (see agents/cap5.md), so the fixtures stay small.
+    C5 = {"agentType": "cap5"}
+    write("d2a-cap-exact", [BRIEF] + turns(5), C5)
+    write("d2a-cap-below", [BRIEF] + turns(4) + handback(), C5)
+    write("d2a-cap-handback-is-last-turn", [BRIEF] + turns(4) + handback(), C5)
+    write("d2a-cap-two-handbacks",
+          [BRIEF] + turns(4) + handback() + [resume()] + turns(4) + handback(), C5)
+    write("d2a-cap-text-rounds",
+          [BRIEF] + turns(3) + text_reply() + [resume()] + turns(3) + text_reply(), C5)
+    write("d2a-cap-parallel", [BRIEF] + turns(3, parallel=2) + handback(), C5)
+    write("d2a-cap-split-id", [BRIEF] + turns(5, split=True), C5)
+    write("d2a-cap-split-id-below", [BRIEF] + turns(4, split=True) + handback(), C5)
+    write("d2a-cap-two-cutoffs", [BRIEF] + turns(5) + [resume()] + turns(5), C5)
+    # the resume marker removed: the same shape, but the resume line has no
+    # origin key, so it is not a segment start. cap-hit must still fire twice.
+    write("d2a-cap-no-marker", [BRIEF] + turns(5) + [meta_user("Continue.")] + turns(5), C5)
+    write("d2a-cap-executor-60", [BRIEF] + turns(60), EXEC)
+    # skip reasons
+    write("d2a-cap-skip-unknown-type", [BRIEF] + turns(1) + handback(), {"agentType": "bad/type"})
+    write("d2a-cap-skip-missing-file", [BRIEF] + turns(1) + handback(), {"agentType": "ghost"})
+    write("d2a-cap-skip-no-maxturns", [BRIEF] + turns(1) + handback(), {"agentType": "nomax"})
+
+    # ---- agent definitions for the tests (frontmatter only matters)
+    os.makedirs(os.path.join(HERE, "agents"), exist_ok=True)
+    defs = {"executor": 60, "scanner": 30, "reviewer": 40, "browser-checker": 25,
+            "general-purpose": 100, "cap5": 5, "nomax": None}
+    for name, n in defs.items():
+        lines = ["---", "name: " + name, "model: sonnet"]
+        if n is not None:
+            lines.append("maxTurns: %d" % n)
+        lines += ["---", "Test-only definition used by tests/run-tests.sh."]
+        with open(os.path.join(HERE, "agents", name + ".md"), "w", encoding="utf-8", newline="\n") as fh:
+            fh.write("\n".join(lines) + "\n")
+
 
 if __name__ == "__main__":
     main()
