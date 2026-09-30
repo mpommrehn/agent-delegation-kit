@@ -681,3 +681,50 @@ checks every segment of a resumed run. Suite 202 passed; style checker
 
 **Deferred.** Step 3 (D2a/D2b/D3 briefs and design note), then step 4 (Fable
 red-team review). Not pushed.
+
+## 2026-09-29 (9295cbf4, continued): D2/D3 design and briefs
+
+**Goal.** Step 3: the D2/D3 briefs and a short design note. Mark raised the
+session's effort to high for it, and asked for everything saved overnight;
+the dispatcher set its own bounds for the unattended part: no push, no Fable
+review, no hooks installed, open questions written down rather than decided.
+
+**Validated before briefing.** Four read-only scanners tried each planned
+check on real data, and a headless probe read the hook inputs. What changed
+the design:
+
+- The D1 checker misses every real cut-off that was later resumed. A resume
+  is an `isMeta` user line with a coordinator origin, and the segment split
+  skips `isMeta`. Both 09-26 cut-offs pass with no FAIL; so does one of the
+  validation scanners, which hit its own 30-call cap while this was being
+  written. Fixing the split is now the first dispatch.
+- Counted per round, the D1 executor stayed within its budget every time;
+  the 158 calls a whole-file count showed were six rounds.
+- Real briefs and evidence files follow no single format, so both get a
+  small fixed shape. Strict command matching gave 24 false FAILs in 42; a
+  substring rule with the executor's own evidence writes masked gave none.
+- The mirrored-logic rule first proposed would not have found the real gbox
+  mirror; the two regexes share no six-character literal. A replaced-token
+  plus co-occurrence rule is proposed and left for the executor to measure,
+  with orders to stop, not tune, if it misses.
+- A keyword test for reachability failed on real reviews and was dropped.
+- Every real executor worktree sits inside a `.claude` directory, so a guard
+  protecting "any `.claude` directory" would refuse every executor write.
+  Caught while writing the D3 guard brief; a test in the real layout is now
+  mandatory.
+- `SubagentStop` carries the agent ID and type, and the dispatch's
+  `tool_use_id` equals the meta's `toolUseId`. Whether it fires on a cut-off
+  is still unverified, so D3 carries a fallback.
+
+**Decision by the dispatcher, flagged to Mark.** Nine dispatches instead of
+three (D2a to D2e, D3a to D3d), on the one-or-two-things-per-dispatch rule.
+The contract text goes into the template as a dispatcher edit, reviewed with
+the design note.
+
+**Built.** `evals/DESIGN.md`; nine briefs plus a common rules file, kept in
+the gitignored `evidence/` because they name local paths. `failures.md`
+corrected: its F1 frequency was an undercount.
+
+**Deferred.** Open questions P1 to P4 in the design note, two of them
+Mark's (fail open or closed; per-session gating). Step 4, the red-team
+review, then D2a.

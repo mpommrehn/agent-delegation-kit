@@ -61,8 +61,14 @@ several) that has tool calls and does not end with a `SubagentHandback`. Fixture
 `resumed-no-handback`, `attachment-first-cutoff`, `era-cutoff-tool-use`; must
 pass: `clean-executor`, `resumed-ok`, `era-text-ending`.
 
-Real frequency: over all 105 transcripts on 2026-09-28, one true `maxTurns`
-cutoff remained.
+Real frequency: the 2026-09-28 sweep over 105 transcripts reported one true
+`maxTurns` cutoff. That was an undercount. On 2026-09-29 both 09-26
+transcripts were found to pass the checker with no FAIL, although each was
+cut off at exactly 60 tool calls (`ab10ad27` twice). A resume sent with
+`SendMessage` is a user line marked `isMeta` with an `origin` of kind
+`coordinator`, and the checker's segment split skips every `isMeta` line. So
+a cut-off that was later resumed and finished looks like one clean segment.
+Fixing the split is the first item of D2a.
 
 Root cause, recorded 2026-09-26: an agent cannot see its turn count, so a
 "stop by turn N" rule cannot work. The template now sizes briefs at one or
@@ -210,10 +216,16 @@ Found by the same scan. Neither is a delegation failure.
 
 ## Known checker limits
 
-False negatives in the D1 checker, found during its review rounds:
+Gaps in the D1 checker, both missed failures and false alarms, found during
+its review rounds and after:
 
-- Quoted text inside a `python -c` argument is matched as a command. This is
-  the one false FAIL left over the 105 real transcripts.
+- A round resumed with `SendMessage` is not a new segment (see F1), so
+  `no-handback` misses a cut-off that was later resumed. Found 2026-09-29;
+  the worst of these, since it hides the top-ranked class.
+
+- Quoted text inside a `python -c` or `printf` argument is matched as a
+  command, a false FAIL. Two real cases known: a reviewer's test string, and
+  the D1 executor's own note mentioning `pkill -f`.
 - Edits made from Bash (`sed -i`, redirects) are invisible to
   `discarded-work`.
 - Heredocs fed to `bash` are skipped.
