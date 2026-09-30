@@ -226,6 +226,8 @@ State lives in `~/.claude/agent-delegation-kit/state/<session_id>/`:
   result and has not changed for ten minutes.
 - `ack.py <agent_id>`: records who acknowledged and when. It does not
   delete the result.
+- `status.py`: lists, per session, every unacknowledged FAIL and the number
+  of logged hook crashes. The only view across sessions (P3).
 
 ### D3b. Installer and brief gate
 
@@ -269,13 +271,15 @@ State lives in `~/.claude/agent-delegation-kit/state/<session_id>/`:
 - **P1.** Does `SubagentStop` fire on a `maxTurns` cut-off, and on a
   background agent? Settle with a probe in a normal (not `-p`) session before
   D3a is dispatched. The D3a fallback covers a no.
-- **P2 (Mark).** Should a gate fail closed or open when the hook itself
-  crashes? Closed blocks all dispatch on a hook bug; open silently disables
-  enforcement. The machine's current hooks fail open. Proposed: open, with
-  the crash written to the state directory and counted in the next refusal.
-- **P3 (Mark).** Should an unacknowledged FAIL from an earlier session block
-  dispatch in a new one? Proposed: no, gate per session, plus a `status`
-  command that lists everything unacknowledged.
+- **P2, decided by Mark 2026-09-29: fail open.** A gate that crashes lets
+  the call through, as the machine's current hooks do. Closed would block
+  all dispatch on a hook bug. The cost of open is that a crash silently
+  disables enforcement, so every crash is written to the state directory,
+  counted in the next refusal, and listed by `status.py`.
+- **P3, decided by Mark 2026-09-29: gate per session.** An unacknowledged
+  FAIL from an earlier session does not block a new one. `status.py` lists
+  every unacknowledged FAIL and logged crash across all sessions, so an old
+  one is not lost.
 - **P4.** The quoted-text false FAIL in `forbidden-command` (a note which
   mentions `pkill -f`) becomes a false refusal once D3d turns the check into
   prevention. Proposed: the guard drops quoted arguments of `echo`,

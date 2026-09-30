@@ -725,6 +725,12 @@ the design note.
 the gitignored `evidence/` because they name local paths. `failures.md`
 corrected: its F1 frequency was an undercount.
 
-**Deferred.** Open questions P1 to P4 in the design note, two of them
-Mark's (fail open or closed; per-session gating). Step 4, the red-team
+**Decisions (Mark), the next morning.** P2: gates fail open, as the
+machine's other hooks do; every crash is logged and counted so an open
+failure is not silent. P3: gate per session; a new `status.py` lists
+unacknowledged FAILs and crashes across all sessions so an old one is not
+lost. Both written into the design note and the D3a brief, which grew to
+five scripts and is flagged for the review as possibly too large.
+
+**Deferred.** P1 (probe) and P4 in the design note. Step 4, the red-team
 review, then D2a.
