@@ -654,3 +654,30 @@ install check then reported in sync.
 
 **Deferred.** The failure catalog, the D2a/D2b/D3 briefs and design note, and
 the Fable red-team review: the next session, from a fresh start.
+
+## 2026-09-29 (9295cbf4): the failure catalog
+
+**Goal.** Mark: "continue the agent-delegation-kit with step 2": write
+`evals/failures.md` from the 2026-09-28 incident scan.
+
+**Finding.** The scan's 15-incident table was never committed. It survived
+only in the hand-back of the 09-28 scanner, and was recovered from the
+session transcript. A catalog that lives in a report is a catalog nobody
+reruns; that is the reason for the file.
+
+**What was built.** Twelve failure classes plus two main-session incidents,
+ranked by recorded incidents times severity weight (High 3, Med 2, Low 1).
+Each class names its check and status: four built in D1, four planned for
+D2a/D2b/D3, one proxy only (reviewer severity), two audit only, one an
+environment fix. The ranking put "budget far over the brief" second, with no
+check yet, so D2a should lead with it, as a WARN about the brief's sizing.
+
+**Verified.** Every statement about the checker was compared with
+`check_run.py` and the test expectations. Three first-draft claims were wrong
+and fixed: an unpinned `general-purpose` on Opus is a WARN, not a FAIL; a
+directory restore is a WARN, only a whole-tree one FAILs; `no-handback`
+checks every segment of a resumed run. Suite 202 passed; style checker
+0 fails.
+
+**Deferred.** Step 3 (D2a/D2b/D3 briefs and design note), then step 4 (Fable
+red-team review). Not pushed.
