@@ -350,6 +350,12 @@ ev resumed-no-handback 1 "FAIL no-handback segment 1 has 1 tool_use"
 ev resumed-ok 0 "SUMMARY 0 FAIL, 0 WARN"
 ev no-tool-calls 0 "-"
 
+# check 1b: a coordinator resume (isMeta, origin.kind coordinator) splits segments
+ev d2a-split-resume-after-cutoff 1 "FAIL no-handback segment 1 has 2 tool_use"
+ev d2a-split-resume-after-handback 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-split-reminder-no-split 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-split-notif-no-split 0 "SUMMARY 0 FAIL, 0 WARN"
+
 # check 2: model-tier
 ev model-executor-opus 1 "FAIL model-tier"
 ev model-meta-haiku 0 "SUMMARY 0 FAIL, 0 WARN"

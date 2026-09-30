@@ -1,0 +1,8 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0009", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0010", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0010", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0011", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0012", "name": "SubagentHandback", "input": {"message": "done"}}]}}
+{"type": "user", "isMeta": true, "message": {"role": "user", "content": "Continue."}, "origin": {"kind": "coordinator"}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0013", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0014", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0014", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0015", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0016", "name": "SubagentHandback", "input": {"message": "done"}}]}}

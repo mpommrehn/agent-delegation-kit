@@ -49,12 +49,17 @@ def _content(rec):
 
 
 def is_segment_start(rec):
-    """A user line whose content is a plain string, and not isMeta."""
-    return (
-        rec.get("type") == "user"
-        and not rec.get("isMeta")
-        and isinstance(_content(rec), str)
-    )
+    """A user line whose content is a plain string and that is either not
+    isMeta (the brief, or an older resume) or an isMeta line whose
+    origin.kind is "coordinator" (a SendMessage resume). Other isMeta lines
+    (the hand-back reminder has no origin; task notifications carry
+    "task-notification") are not segment starts."""
+    if rec.get("type") != "user" or not isinstance(_content(rec), str):
+        return False
+    if not rec.get("isMeta"):
+        return True
+    origin = rec.get("origin")
+    return isinstance(origin, dict) and origin.get("kind") == "coordinator"
 
 
 def tool_uses(rec):
@@ -68,8 +73,8 @@ def tool_uses(rec):
 
 
 def split_segments(records):
-    """Split records into segments. Each starts at a string-content, non-isMeta
-    user line (the brief, or a resume). Records before the first such line
+    """Split records into segments. Each starts at a segment-start user line
+    (see is_segment_start: the brief, or a resume). Records before the first such line
     (attachments and the like) do not form a segment. A file with no such
     line at all is treated as one segment so its calls are still checked."""
     segments = []

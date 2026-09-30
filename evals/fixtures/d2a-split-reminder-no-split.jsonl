@@ -1,0 +1,7 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0017", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0018", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0018", "content": "ok", "is_error": false}]}}
+{"type": "user", "isMeta": true, "message": {"role": "user", "content": "Reminder: deliver your final report with SubagentHandback."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0019", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0020", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0020", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0021", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0022", "name": "SubagentHandback", "input": {"message": "done"}}]}}
