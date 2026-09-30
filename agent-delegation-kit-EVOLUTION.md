@@ -770,3 +770,41 @@ one.
 subagent's context does not depend on this one's size, but the author of a
 design should not triage the red-team findings on it. Review prompt written
 to the gitignored `evidence/`.
+
+## 2026-09-30 (1322ef6e): Fable red-team review of the D2/D3 design
+
+**Goal (Mark).** "Pick up the delegation project. Dispatch the Fable review
+from evidence/brief-review-step4.md." Run from a new session, as advised the
+day before, so the design's author did not triage its own red-team findings.
+
+**What ran.** One `reviewer` on Fable, with the brief unchanged: 26 tool
+calls of about 35, read-only. Verdict: dispatch D2a after fixes. D2b to D2f
+need small edits. D3 waits for the template contract edit and P1.
+
+**Findings the dispatcher confirmed on real transcripts** (a read-only script
+over all 99 subagent transcripts, three readings of the `cap-hit` rule):
+
+- The reset rule was ambiguous in a way that kills the check. A turn is
+  written as several lines sharing one message id, usually a text line and
+  then a tool-call line. Read line by line, "reset after a message with no
+  tool call" resets on nearly every turn, and `cap-hit` fires on none of the
+  99. Grouped by id, it fires where it should.
+- No reset after a firing meant the second cut-off in a twice-resumed run
+  could not fire: it sits at 120 turns from the start.
+- The expected-results table was incomplete. Five transcripts fire, not
+  three. One is a fifth resumed cut-off, in a `browser-checker` at its
+  25-turn cap, that today's checker passes clean. A second resume-like
+  marker kind (`task-notification`) exists.
+- The D3c refusal would print a file name the executor chose: agent text
+  reaching the dispatcher, against the "no pushed text" rule.
+
+**Pushback on the reviewer.** One of its four contradictions did not hold.
+The design note says the brief contract *goes into* the template. It does not
+claim the template already has it. The sequencing risk behind the claim is
+real: D3b would refuse every brief written from today's template.
+
+**Lesson.** The rule "prove it on the motivating incident, expected result
+written first" was followed, and the expected results were still wrong. The
+author wrote them from a mental model of the rule, not by running a
+reference reading of it. A 90-line read-only script found every gap. Brief
+fixes wait for Mark.
