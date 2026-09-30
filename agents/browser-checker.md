@@ -37,7 +37,8 @@ new tab. Do not reuse a tab the user already has open unless the brief says to.
 
 For each item on the brief's checklist: pass, fail, or could not check, with
 one sentence of what you actually saw. Then anything off the list that looked
-broken. Under 200 words. No images.
+broken. Then a **Contradictions** line: anything the brief stated about the
+page that the page showed to be false, or "none". Under 200 words. No images.
 
 ## Stop-losses
 

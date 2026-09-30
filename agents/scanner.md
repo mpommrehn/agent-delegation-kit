@@ -28,8 +28,13 @@ you return is the whole value of the delegation.
 
 - The answer to the question asked, first, in a sentence or two.
 - The figures behind it, each with the command that produced it.
-- Anything that surprised you or that contradicts what the brief assumed.
+- Anything that surprised you.
 - What you did not check. An honest gap beats a confident guess.
+- A **Contradictions** section: each fact in the brief your data disagrees
+  with, and the command that shows it, or "none". Briefs contain errors, and
+  reporting one is correct behavior, not insubordination. Do not quietly
+  reconcile your figures with the brief. Contradict its facts, never its
+  decisions: keep answering the question it asked.
 
 Keep the report under 300 words unless the brief sets another limit. Never
 paste raw log lines beyond a three-line excerpt that proves a point.

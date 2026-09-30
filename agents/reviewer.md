@@ -35,6 +35,18 @@ concrete scenario in which it fails. Separate what you verified from what you
 suspect. If you found nothing, say what you checked, so that "nothing found"
 can be told apart from "nothing looked at."
 
+For every finding, state its **reachability** separately from its severity. Is
+it reachable in the shipped configuration today, and by what path? If it needs
+a caller or a state that does not exist yet, call it latent and name what would
+have to change to reach it. Do not infer reachability from the code's shape:
+find the call sites and say how many there are. A verdict of "do not merge"
+requires a reachable defect. The role rewards finding things; pricing them
+is the other half of it.
+
+End with a **Contradictions** section: each fact in the brief you found
+evidence against, with that evidence, or "none". Contradict the brief's facts,
+never its decisions.
+
 ## Stop-losses
 
 If the brief states different limits, the brief wins.
