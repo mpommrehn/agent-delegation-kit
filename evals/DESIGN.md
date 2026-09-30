@@ -37,11 +37,14 @@ Verified 2026-09-29 unless marked.
   no FAIL. Checked by running the checker on those two transcripts.
 - **A cut-off lands at exactly the agent's `maxTurns`, counted in turns**,
   not tool calls. A turn is an assistant message holding at least one tool
-  call; parallel calls share a turn. `executor` was cut at 60 turns
-  (`ab10ad27` twice, `ac41fee7` once), and a `scanner` dispatched while
-  writing this note at 30 turns, which held 31 calls. That scanner was then
-  resumed and finished, and the D1 checker passes it too: four real
-  cut-offs, all missed.
+  call; parallel calls share a turn, and one turn is usually written as
+  several transcript lines with the same message id. `executor` was cut at
+  60 turns (`ab10ad27` twice, `ac41fee7` once), and a `scanner` dispatched
+  while writing this note at 30 turns, which held 31 calls. That scanner was
+  then resumed and finished, and the D1 checker passes it too. The step-4
+  review (2026-09-30) found a fifth: a `browser-checker` cut at 25 turns (27
+  calls), then resumed. Five real resumed cut-offs, all missed. A sixth
+  cut-off, an `executor` at 60 turns never resumed, is caught.
 - **Briefs in the wild do not follow one format.** Of 8 real executor
   briefs, 4 had a "Files in scope" section, in three different forms, and 2
   had no scope statement at all. A budget in tool calls could be read from
@@ -115,16 +118,21 @@ needs nothing else.
 
 - Fix `split_segments`: a user line with `isMeta` and `origin.kind ==
   "coordinator"` also starts a segment.
-- `cap-hit` (FAIL), a backstop that knows nothing of resume markers: count
-  turns since the start, the last hand-back or the last text-only reply;
-  when the count reaches the agent type's `maxTurns` (read from its
-  installed definition) on a turn with no hand-back, the agent was cut off.
-  If the resume format ever changes, the split fix silently stops working
-  and this still fires. A test with the marker deleted proves it.
-- Real acceptance, written before the run: `ab10ad27` gives two
-  `no-handback` and two `cap-hit` FAILs, `ac41fee7` one of each, the cut-off
-  scanner one of each, and the D1 executor `a8e10fff`, whose six rounds
-  each ended in a hand-back under the cap, none.
+- `cap-hit` (FAIL), a backstop that knows nothing of resume markers: group
+  transcript lines by message id, then count turns since the start, the
+  last hand-back, the last text-only reply or the last `cap-hit`; when the
+  count reaches the agent type's `maxTurns` (read from its installed
+  definition), the agent was cut off. Read line by line instead of by id,
+  the text-only reset fires on nearly every turn and the check never fires
+  (verified on all 99 transcripts, 2026-09-30). If the resume format ever
+  changes, the split fix silently stops working and this still fires. A
+  test with the marker deleted proves it.
+- Real acceptance, written before the run and checked against a reference
+  script over all 99 transcripts: `ab10ad27` gives two `no-handback` and two
+  `cap-hit` FAILs; `ac41fee7`, the cut-off scanner and the cut-off
+  browser-checker one of each; the un-resumed executor `a4bfc54c` one of
+  each; the D1 executor `a8e10fff`, whose six rounds each ended in a
+  hand-back under the cap, none. `cap-hit` fires on no other transcript.
 
 ### D2b. Parsing the brief, and checking the budget (F2)
 

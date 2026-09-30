@@ -808,3 +808,14 @@ written first" was followed, and the expected results were still wrong. The
 author wrote them from a mental model of the rule, not by running a
 reference reading of it. A 90-line read-only script found every gap. Brief
 fixes wait for Mark.
+
+**Decision (Mark, next morning): "go with A, apply fixes 1-3."** The reset
+rule now groups lines by message id and resets after a firing. The table
+covers all five cut-off transcripts plus the known non-resume marker. The
+brief stays one dispatch: 50 tool calls, one fixture generator, a one-call
+evidence form (tested, including the exit code), and a work order that
+commits the split fix first so an overrun loses only the backstop. This time
+the expected results came from a reference: a patched copy of the checker and
+a script over all 99 transcripts. The split changes `no-handback` on exactly
+the four resumed transcripts, and `cap-hit` fires on exactly the five
+cut-offs.

@@ -74,7 +74,10 @@ cut off at exactly 60 tool calls (`ab10ad27` twice). A resume sent with
 `SendMessage` is a user line marked `isMeta` with an `origin` of kind
 `coordinator`, and the checker's segment split skips every `isMeta` line. So
 a cut-off that was later resumed and finished looks like one clean segment.
-Fixing the split is the first item of D2a.
+Fixing the split is the first item of D2a. The step-4 review (2026-09-30)
+raised the count: five resumed cut-offs pass with no FAIL (`ab10ad27` twice,
+`ac41fee7`, a scanner at 30 turns, a browser-checker at 25), and one
+un-resumed executor cut-off is caught.
 
 Root cause, recorded 2026-09-26: an agent cannot see its turn count, so a
 "stop by turn N" rule cannot work. The template now sizes briefs at one or
