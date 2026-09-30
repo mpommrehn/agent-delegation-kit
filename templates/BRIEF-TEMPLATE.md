@@ -57,6 +57,18 @@ one you never mentioned, because the agent will trust the boundary.
 <command>
 ```
 
+When the work fixes a known failure, or adds a check meant to catch one, the
+done-when must include **the real case that motivated it**: the transcript,
+log or input where the failure actually happened, and the result it must now
+produce, written in the brief before anything runs. A sweep over real data
+is not enough on its own. It shows what the new code reports, not what it
+misses, and a motivating case that quietly produces nothing looks the same
+as a clean run. If the real case no longer exists, say so in the brief; the
+work is then proven only on synthetic inputs, and the report must say that.
+(A transcript checker passed its sweep of 105 real runs in 2026-09 while
+missing the two incidents it was built for; nobody had written down that
+they must appear.)
+
 **Evidence.** Path of the evidence file. Every verification step goes in it as
 the raw command beside the raw output. A prose claim of "verified" counts for
 nothing. **Write it as you go**, appending each step's command and output when

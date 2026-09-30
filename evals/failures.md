@@ -28,18 +28,24 @@ The counts are a floor: an incident counts only if someone wrote it down.
 
 | ID | Class | Incidents | Sev | Priority | Covered by | Status |
 |---|---|---|---|---|---|---|
-| F1 | Stopped without a report | 3 | High | 9 | `no-handback` | Built (D1) |
-| F2 | Budget far over the brief's size | 3 | Med | 6 | budget check | Planned (D2a) |
-| F3 | Scope list hid mirrored logic | 1 | High | 3 | mirrored-logic search | Planned (D2b) |
-| F4 | Verification claimed, not shown | 1 | High | 3 | evidence-vs-transcript | Planned (D2a) |
+| F1 | Stopped without a report | 3 | High | 9 | `no-handback`; `cap-hit` | Built (D1), misses resumed runs; fix and backstop in D2a |
+| F2 | Budget far over the brief's size | 3 | Med | 6 | budget check | Planned (D2b) |
+| F3 | Scope list hid mirrored logic | 1 | High | 3 | mirrored-logic search | Planned (D2f) |
+| F4 | Verification claimed, not shown | 1 | High | 3 | evidence-vs-transcript | Planned (D2d), no real positive |
 | F5 | Finished work discarded by a restore | 1 | High | 3 | `discarded-work` (WARN) | Built (D1) |
-| F6 | Destructive or outward command | 1 | High | 3 | `forbidden-command`; hooks | Built (D1); gates D3 |
-| F7 | Wrong model tier | 1 | Med | 2 | `model-tier` | Built (D1) |
-| F8 | Reviewer severity out of proportion | 1 | Med | 2 | reviewer-report form | Planned (D2b), proxy only |
+| F6 | Destructive or outward command | 1 | High | 3 | `forbidden-command`; hooks | Built (D1), no real positive; gates D3 |
+| F7 | Wrong model tier | 1 | Med | 2 | `model-tier` | Built (D1), no real positive |
+| F8 | Reviewer severity out of proportion | 1 | Med | 2 | reviewer-report form | Planned (D2e), proxy only |
 | F9 | Correction restated as a false claim | 1 | Med | 2 | none | Audit only |
 | F10 | Prose overstated the numbers | 1 | Med | 2 | none | Audit only |
-| F11 | Evidence file committed to the target repo | 1 | Low | 1 | scope check; evidence-path gate | Planned (D2a, D3) |
+| F11 | Evidence file committed to the target repo | 1 | Low | 1 | scope check; merge gate | Planned (D2c, D3c) |
 | F12 | Dispatch refused, stray worktrees left | 1 | Low | 1 | none yet | Environment fix |
+
+"No real positive" means the check has never fired on a real incident
+transcript: the originals are gone or never existed, so only synthetic
+fixtures prove it. `discarded-work` has one: it warns on the 09-26 round-4
+transcript (`ac41fee7`), which holds the restore that lost a finished fix.
+It also warns on round 3; whether that restore lost anything is unverified.
 
 Two main-session incidents from the scan are kept at the end, since they are
 not delegation failures but a checker or gate could still catch them.
@@ -80,7 +86,7 @@ two fixes and asks for a commit after every finished step.
 - 2026-09-19: the gbox 0.7.3 executor made 48 calls against 40, but reported.
 - 2026-09-26: the brief itself needed about 150 calls against a cap of 60.
 
-Planned check (D2a): count tool calls per segment and compare with the
+Planned check (D2b): count tool calls per segment and compare with the
 brief's stated budget. The finding is about the brief's sizing, not the
 agent's conduct, since the agent cannot count. WARN, not FAIL.
 
@@ -92,7 +98,7 @@ agent's conduct, since the agent cannot count. WARN, not FAIL.
   shipped. Transcript `af39624dd850407b9`; brief in
   `examples/executor-brief-gbox-0.7.3.md`.
 
-Not visible in a transcript. Planned check (D2b): for each literal the diff
+Not visible in a transcript. Planned check (D2f): for each literal the diff
 changes, search the whole repo for the same literal outside the files in
 scope. Validate against the real 0.7.3 case before briefing it. Since
 2026-09-29 the brief template also asks the dispatcher for this search before
@@ -107,7 +113,7 @@ Passing case from the same run: the executor stopped at the scope boundary on
   then a prose "verified" counts for nothing without the raw command and its
   output. Predates the kit; no transcript.
 
-Planned check (D2a): every command quoted in the evidence file must appear as
+Planned check (D2d): every command quoted in the evidence file must appear as
 a Bash tool call in the transcript, and the quoted output must match the
 tool result.
 
@@ -158,7 +164,7 @@ inherits the parent's model by design. Fixtures: `model-*`.
   configuration. Transcript `a1ee39a1ef55f9087`.
 
 Reachability needs judgment, so no check can decide this. Planned proxy
-(D2b): a hold or do-not-merge verdict must cite a failing command or a
+(D2e): a hold or do-not-merge verdict must cite a failing command or a
 `file:line`. Since 2026-09-29 the reviewer definition asks for reachability
 separately from severity and reserves "hold" for a reachable defect; the
 check would make that visible in the report, not judge it.
@@ -187,7 +193,7 @@ as much as a model one.
 - 2026-09-19, gbox 0.7.3: the evidence file was written to `evidence/` in the
   target repo and swept into a commit by `git add -A`.
 
-Planned check (D2a): a Write outside the brief's files in scope, with the
+Planned check (D2c): a Write outside the brief's files in scope, with the
 evidence path as the only allowed exception, and that path outside the
 repo's tracked tree. D3 adds a gate on the evidence path.
 
@@ -236,10 +242,24 @@ its review rounds and after:
 When a delegated run fails in a new way:
 
 1. Add the incident under its class here, or start a new class.
-2. Find a real transcript that shows it, and one clean transcript that must
-   still pass. Every real defect in D1 came from real transcripts; none came
-   from hand-written fixtures.
+2. Find the real transcripts of **the incident that motivated the check**,
+   and one clean transcript that must still pass. Write down, before any run,
+   the finding each must produce. Every real defect in D1 came from real
+   transcripts; none came from hand-written fixtures.
 3. Write the check, add a synthetic fixture for each, and add both to
    `tests/run-tests.sh`.
-4. Rerun the checker over all recent real transcripts and read every new
+4. Run the checker on the motivating transcripts and compare with what you
+   wrote down. A motivating incident that does not produce its finding means
+   the check does not work, whatever else the sweep shows.
+5. Rerun the checker over all recent real transcripts and read every new
    finding before merging.
+
+If no real transcript of the incident exists, say so, and mark the check
+"no real positive" in the table above: it is proven only on synthetic
+fixtures, which test the rule as written, not whether the rule matches what
+really happens.
+
+Step 4 exists because D1 skipped it. D1 was validated by sweeping 105 real
+transcripts and reading the FAILs that came out. The two 09-26 cut-offs that
+motivated `no-handback` produced no finding, and nothing had said they
+must, so their absence went unnoticed until 2026-09-29.

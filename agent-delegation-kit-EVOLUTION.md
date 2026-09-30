@@ -734,3 +734,39 @@ five scripts and is flagged for the review as possibly too large.
 
 **Deferred.** P1 (probe) and P4 in the design note. Step 4, the red-team
 review, then D2a.
+
+## 2026-09-29 (9295cbf4, continued): why the checker missed, and the fix to the process
+
+**Question (Mark).** "What about that failure above that missed the things it
+was meant to catch? Is it fixed adequately?" Answer: no, only briefed; and
+the catalog's table still called it built, now corrected.
+
+**Five whys.** The checker missed resumed cut-offs because D1's spec defined
+a resume wrongly, from a scanner's description nobody tested on a real
+resume. Validation did not catch it because D1 was validated by sweeping 105
+real transcripts and reading the FAILs that came out; nobody had written
+down that the two incidents that motivated the check must appear. A sweep
+shows what a check reports, never what it misses. The rule already in use,
+"one real clean and one real failing transcript", did not say which failing
+one.
+
+**Changes (Mark: "go, including the template change").**
+
+- The template's Done-when now requires the real case that motivated a fix
+  or check, with its expected result written before the run. The same rule
+  is in the catalog's "Adding a failure" and the common brief rules.
+- The fix got a second, independent signal. The data showed the cap counts
+  turns, not tool calls: a scanner cut at 30 turns held 31 calls. A new
+  `cap-hit` check counts turns since the last hand-back or text-only reply
+  and needs no resume marker, so a format change cannot silently undo the
+  fix. A test with the marker deleted proves it.
+- The fix became its own first dispatch; D2 is now D2a to D2f, ten
+  dispatches in all.
+- The catalog marks `model-tier`, `forbidden-command` and evidence matching
+  "no real positive": only synthetic fixtures prove them. `discarded-work`
+  fires on the real 09-26 restore.
+
+**Advice given (Mark asked).** Run the Fable review from a new session: a
+subagent's context does not depend on this one's size, but the author of a
+design should not triage the red-team findings on it. Review prompt written
+to the gitignored `evidence/`.

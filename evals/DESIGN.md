@@ -25,7 +25,7 @@ Status: draft of 2026-09-29, for a red-team review before any dispatch.
    Executors cannot write the hook scripts, the settings files or the state
    directory.
 5. **One or two things per dispatch.** Two small fixes with proofs took more
-   than 60 turns on 2026-09-26. The plan below is nine dispatches, not two.
+   than 60 turns on 2026-09-26. The plan below is ten dispatches, not two.
 
 ## Facts this design rests on
 
@@ -35,9 +35,11 @@ Verified 2026-09-29 unless marked.
   user line with `isMeta: true` and `origin: {"kind": "coordinator"}`. The
   D1 split skips every `isMeta` line, so both real 09-26 cut-offs pass with
   no FAIL. Checked by running the checker on those two transcripts.
-- **A cut-off lands at exactly the agent's `maxTurns` in tool calls**:
-  `executor` at 60 (`ab10ad27` at 60 and 120, `ac41fee7` at 60), and a
-  `scanner` dispatched while writing this note at 30. That scanner was then
+- **A cut-off lands at exactly the agent's `maxTurns`, counted in turns**,
+  not tool calls. A turn is an assistant message holding at least one tool
+  call; parallel calls share a turn. `executor` was cut at 60 turns
+  (`ab10ad27` twice, `ac41fee7` once), and a `scanner` dispatched while
+  writing this note at 30 turns, which held 31 calls. That scanner was then
   resumed and finished, and the D1 checker passes it too: four real
   cut-offs, all missed.
 - **Briefs in the wild do not follow one format.** Of 8 real executor
@@ -73,7 +75,7 @@ stays prose.
 - `evals/fixtures/**`
 
 ## Evidence
-- `evidence/EVIDENCE-D2a.md`
+- `evidence/EVIDENCE-D2b.md`
 
 ## Budget
 Tool calls: 40
@@ -92,7 +94,7 @@ Tool calls: 40
   contains a `## Budget` heading. With no brief, the brief checks are skipped
   with a WARN.
 
-The evidence file gets a fixed shape too, for D2c. Each verified step is one
+The evidence file gets a fixed shape too, for D2d. Each verified step is one
 fenced block that opens with `$ ` and the exact command as run, no
 abbreviation and no path placeholder, followed by the output, verbatim or cut
 only with a `...` line. Anything another session adds goes under a
@@ -106,22 +108,34 @@ them already.
 
 ## D2: new checks
 
-### D2a. Resume segments, and the budget check (F1, F2)
+### D2a. Catch resumed cut-offs, two ways (F1)
+
+A dispatch of its own, first, because it fixes the top-ranked class and
+needs nothing else.
 
 - Fix `split_segments`: a user line with `isMeta` and `origin.kind ==
-  "coordinator"` also starts a segment. Real acceptance: `ab10ad27` gives
-  two `no-handback` FAILs, `ac41fee7` one, the cut-off scanner one, and the
-  D1 executor `a8e10fff`, whose six rounds each ended in a hand-back, none.
-  Counted per round, that executor stayed under its 40-call budget every
-  time; the 158 calls a whole-file count shows was six rounds.
+  "coordinator"` also starts a segment.
+- `cap-hit` (FAIL), a backstop that knows nothing of resume markers: count
+  turns since the start, the last hand-back or the last text-only reply;
+  when the count reaches the agent type's `maxTurns` (read from its
+  installed definition) on a turn with no hand-back, the agent was cut off.
+  If the resume format ever changes, the split fix silently stops working
+  and this still fires. A test with the marker deleted proves it.
+- Real acceptance, written before the run: `ab10ad27` gives two
+  `no-handback` and two `cap-hit` FAILs, `ac41fee7` one of each, the cut-off
+  scanner one of each, and the D1 executor `a8e10fff`, whose six rounds
+  each ended in a hand-back under the cap, none.
+
+### D2b. Parsing the brief, and checking the budget (F2)
+
+- The brief parser, shared with D2c, D2d and D3b.
 - `budget` (WARN): per segment, count tool calls excluding
   `SubagentHandback`, and warn when the count exceeds the brief's number.
-  The finding is about the brief's size, not the agent's conduct. A segment
-  of exactly 60 calls with no hand-back is already a FAIL under
-  `no-handback`.
-- Add the brief parser, shared with D2b, D2c and D3b.
+  The finding is about the brief's size, not the agent's conduct. Counted
+  per round, the D1 executor stayed under its 40-call budget every time;
+  the 158 calls a whole-file count showed were six rounds.
 
-### D2b. Checking scope (F11 and part of F3)
+### D2c. Checking scope (F11 and part of F3)
 
 - `scope` (FAIL): an Edit, Write or NotebookEdit on a path inside the
   worktree (from meta `worktreePath`) that matches no "Files in scope" entry
@@ -133,7 +147,7 @@ them already.
   A scope widened by a later coordinator message FAILs; the dispatcher
   acknowledges it.
 
-### D2c. Evidence against transcript (F4)
+### D2d. Evidence against transcript (F4)
 
 Validated on four real evidence files paired with their transcripts (42
 executor-written commands).
@@ -160,7 +174,7 @@ executor-written commands).
   `--evidence PATH`; without one it rebuilds the file from the transcript's
   Write and Edit inputs when it can, and otherwise skips with a WARN.
 
-### D2d. Report form (F8, F9, F10)
+### D2e. Report form (F8, F9, F10)
 
 Validated on 117 real reports.
 
@@ -178,7 +192,7 @@ Validated on 117 real reports.
   wrongly warned on two of the three sound holds and passed on a test name.
   It stays in the reviewer's definition and in the dispatcher's reading.
 
-### D2e. Mirrored-logic search (F3)
+### D2f. Mirrored-logic search (F3)
 
 A standalone tool, not a transcript check: `evals/mirror_check.py <repo>
 <base>..<head>`. It runs where the template's "After it returns" already asks
@@ -198,7 +212,7 @@ in anchoring and prefix. The rule that does find it:
 
 Real acceptance: on the gbox range `d220ff7^..d220ff7` the output names
 `gbox/web/app.js:402`, and on three ordinary commits it reports a handful of
-lines or fewer. The co-occurrence rule is untested; D2e's first step is to
+lines or fewer. The co-occurrence rule is untested; D2f's first step is to
 measure it, and a result that misses line 402 is a finding to report, not to
 tune until it passes.
 
@@ -288,11 +302,11 @@ State lives in `~/.claude/agent-delegation-kit/state/<session_id>/`:
 
 ## Order and review
 
-D2a goes first: it fixes the top-ranked miss and lands the brief parser.
-D2b and D2c need that parser; D2d and D2e need nothing and can go in any
-order. D3a to D3d run in order, after D2a. Each dispatch is verified by a
-fresh `reviewer`, never the executor's session. The briefs are
-`evidence/brief-evals-D2a.md` to `brief-evals-D3d.md` plus
-`brief-evals-common.md`, local and gitignored because they name local paths. One security pass runs at D3
+D2a goes first: it fixes the top-ranked miss. D2b lands the brief parser,
+which D2c and D2d need; D2e needs D2a; D2f needs nothing. D3a to D3d run in
+order, after D2b. Each dispatch is verified by a fresh `reviewer`, never the
+executor's session. The briefs are `evidence/brief-evals-D2a.md` to
+`brief-evals-D3d.md` plus `brief-evals-common.md`, local and gitignored
+because they name local paths. One security pass runs at D3
 feature-complete (`/code-review ultra`, triggered by Mark). Before any
 dispatch, this note and the briefs get a red-team review.
