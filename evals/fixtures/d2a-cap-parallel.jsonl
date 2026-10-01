@@ -1,0 +1,11 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0093", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0094", "name": "Bash", "input": {"command": "ls"}}, {"type": "tool_use", "id": "toolu_0095", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0094", "content": "ok", "is_error": false}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0095", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0096", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0097", "name": "Bash", "input": {"command": "ls"}}, {"type": "tool_use", "id": "toolu_0098", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0097", "content": "ok", "is_error": false}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0098", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0099", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0100", "name": "Bash", "input": {"command": "ls"}}, {"type": "tool_use", "id": "toolu_0101", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0100", "content": "ok", "is_error": false}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0101", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0102", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0103", "name": "SubagentHandback", "input": {"message": "done"}}]}}

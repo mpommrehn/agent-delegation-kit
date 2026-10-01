@@ -1,0 +1,10 @@
+{"type": "user", "message": {"role": "user", "content": "Do the task."}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0049", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0050", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0050", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0051", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0052", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0052", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0053", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0054", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0054", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0055", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0056", "name": "Bash", "input": {"command": "ls"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_0056", "content": "ok", "is_error": false}]}}
+{"type": "assistant", "message": {"role": "assistant", "id": "msg_0057", "model": "claude-sonnet-5", "content": [{"type": "tool_use", "id": "toolu_0058", "name": "SubagentHandback", "input": {"message": "done"}}]}}

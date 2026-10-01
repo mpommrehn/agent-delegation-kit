@@ -331,10 +331,14 @@ echo "== evals"
 # ev NAME EXPECTED-EXIT PATTERN: run the checker on evals/fixtures/NAME.jsonl,
 # assert the exit code and that PATTERN (a fixed string) appears in the output.
 # PATTERN "-" means the output must hold no FAIL line.
+# The agents dir is pinned to the test definitions, so results do not depend
+# on the machine's installed agents. Extra arguments after PATTERN go to the
+# checker (ev only; they follow --agents-dir, so they may override it).
 evcheck="$root/evals/check-run.sh"
+evagents="$root/evals/fixtures/agents"
 ev() {
   local out rc
-  out="$(bash "$evcheck" "$root/evals/fixtures/$1.jsonl" 2>&1)"; rc=$?
+  out="$(bash "$evcheck" "$root/evals/fixtures/$1.jsonl" --agents-dir "$evagents" "${@:4}" 2>&1)"; rc=$?
   if [ "$rc" -ne "$2" ]; then bad "evals: $1" "expected exit $2, got $rc: $out"; return; fi
   if [ "$3" = "-" ]; then
     case "$out" in *"FAIL "*) bad "evals: $1" "unexpected FAIL: $out" ;; *) ok "evals: $1" ;; esac
@@ -343,12 +347,56 @@ ev() {
   fi
 }
 
+# evno NAME EXIT STRING [ARGS]: like ev, but STRING must be absent from the output.
+evno() {
+  local out rc
+  out="$(bash "$evcheck" "$root/evals/fixtures/$1.jsonl" --agents-dir "$evagents" "${@:4}" 2>&1)"; rc=$?
+  if [ "$rc" -ne "$2" ]; then bad "evals: $1 (no $3)" "expected exit $2, got $rc: $out"; return; fi
+  case "$out" in *"$3"*) bad "evals: $1 (no $3)" "unexpected '$3' in: $out" ;; *) ok "evals: $1 (no $3)" ;; esac
+}
+# evcount NAME EXIT STRING N [ARGS]: STRING must occur on exactly N output lines.
+evcount() {
+  local out rc n
+  out="$(bash "$evcheck" "$root/evals/fixtures/$1.jsonl" --agents-dir "$evagents" "${@:5}" 2>&1)"; rc=$?
+  if [ "$rc" -ne "$2" ]; then bad "evals: $1 (x$4 $3)" "expected exit $2, got $rc: $out"; return; fi
+  n="$(printf '%s\n' "$out" | grep -cF -- "$3")"
+  if [ "$n" -eq "$4" ]; then ok "evals: $1 (x$4 $3)"; else bad "evals: $1 (x$4 $3)" "found $n in: $out"; fi
+}
+
 # check 1: no-handback
 ev clean-executor 0 "SUMMARY 0 FAIL, 0 WARN"
 ev no-handback 1 "FAIL no-handback segment 1 has 2 tool_use"
 ev resumed-no-handback 1 "FAIL no-handback segment 1 has 1 tool_use"
 ev resumed-ok 0 "SUMMARY 0 FAIL, 0 WARN"
 ev no-tool-calls 0 "-"
+
+# check 1b: a coordinator resume (isMeta, origin.kind coordinator) splits segments
+ev d2a-split-resume-after-cutoff 1 "FAIL no-handback segment 1 has 2 tool_use"
+ev d2a-split-resume-after-handback 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-split-reminder-no-split 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-split-notif-no-split 0 "SUMMARY 0 FAIL, 0 WARN"
+
+# check 1c: cap-hit, the backstop that knows nothing of resume markers.
+# cap5 is a test-only agent type with maxTurns 5 (fixtures/agents/cap5.md).
+ev d2a-cap-exact 1 "FAIL cap-hit 5 turns (5 tool calls)"
+ev d2a-cap-below 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-cap-handback-is-last-turn 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-cap-two-handbacks 0 "SUMMARY 0 FAIL, 0 WARN"
+evno d2a-cap-text-rounds 0 "cap-hit"
+ev d2a-cap-parallel 0 "SUMMARY 0 FAIL, 0 WARN"
+ev d2a-cap-split-id 1 "FAIL cap-hit 5 turns (5 tool calls)"
+ev d2a-cap-split-id-below 0 "SUMMARY 0 FAIL, 0 WARN"
+evcount d2a-cap-two-cutoffs 1 "FAIL cap-hit" 2
+evcount d2a-cap-two-cutoffs 1 "FAIL no-handback" 2
+evcount d2a-cap-no-marker 1 "FAIL cap-hit" 2
+evcount d2a-cap-no-marker 1 "FAIL no-handback" 1
+ev d2a-cap-executor-60 1 "FAIL cap-hit 60 turns (60 tool calls)"
+ev d2a-cap-skip-unknown-type 0 "WARN cap-hit skipped: unknown agent type"
+ev d2a-cap-skip-missing-file 0 "WARN cap-hit skipped: no definition file ghost.md"
+ev d2a-cap-skip-no-maxturns 0 "WARN cap-hit skipped: nomax.md has no maxTurns line"
+ev d2a-cap-below 1 "FAIL cap-hit 3 turns (3 tool calls)" --max-turns 3
+evno d2a-cap-exact 1 "cap-hit" --max-turns 9
+evno d2a-cap-skip-missing-file 0 "skipped" --max-turns 3
 
 # check 2: model-tier
 ev model-executor-opus 1 "FAIL model-tier"
