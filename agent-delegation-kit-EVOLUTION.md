@@ -819,3 +819,24 @@ the expected results came from a reference: a patched copy of the checker and
 a script over all 99 transcripts. The split changes `no-handback` on exactly
 the four resumed transcripts, and `cap-hit` fires on exactly the five
 cut-offs.
+
+**D2a dispatched, verified, merged (Mark: "push. Dispatch d2a", then "merge
+and push").** One Sonnet executor. Mark kept the budget at 50 tool calls; the
+run took 65, under the 60-turn cap. It committed the split fix first, then
+`cap-hit`, with 23 new tests and a teeth proof for each. The dispatcher
+re-ran everything rather than reading the report: suite 225 passed, and the
+old and new checkers over all 100 real transcripts. `cap-hit` fires on
+exactly the five cut-offs, and `no-handback` changes on exactly the four
+resumed runs. Nothing else moved, as written down before the run.
+
+Accepted without a rule change: an agent type absent from the meta skips
+`cap-hit` silently, which keeps an existing test intact. No real meta lacks
+the type. New noise accepted for now: agent types with no definition file
+get a skip WARN.
+
+**Defect in the dispatcher's own brief.** The one-call evidence form recorded
+the exit code of the last command in a pipe. A failing suite piped into
+`grep` showed `exit=0`. The counts in the evidence were right; the line was
+not. The shared brief rules now run the command under `pipefail`. Briefs
+sized at 50 calls ran about a third over; D2b to D2f are sized with that in
+mind.
