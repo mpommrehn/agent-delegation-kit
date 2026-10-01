@@ -90,12 +90,16 @@ Tool calls: 40
   ``- `path` `` count. A glob may use `*` and `**`. Notes go on unbulleted
   lines without backticks. (The first-backticked-token rule misread a real
   brief whose prose held `python3` in backticks.)
-- "Budget" holds one line `Tool calls: N` and no other number.
+- "Budget" holds one line `Tool calls: N` and no other number. Anything
+  else about budget and work order goes in its own section. (The D2a brief
+  broke this rule: a work-order list inside its Budget section made it
+  parse as no budget.)
 - The dispatch prompt names the brief's file path, ending in `.md`, on its
-  first line. The checker takes `--brief PATH`, or else the first existing
-  `.md` path in the first user message, or else that message itself if it
-  contains a `## Budget` heading. With no brief, the brief checks are skipped
-  with a WARN.
+  first line. The checker takes `--brief PATH`, or else that first line if
+  the whole line is an existing `.md` path, or else the first user message
+  itself if it contains a `## Budget` heading. A `.md` path elsewhere in the
+  message is never the brief: three real prompts mention `AGENTS.md`, which
+  exists. With no brief, the brief checks are skipped with a WARN.
 
 The evidence file gets a fixed shape too, for D2d. Each verified step is one
 fenced block that opens with `$ ` and the exact command as run, no
