@@ -840,3 +840,64 @@ the exit code of the last command in a pipe. A failing suite piped into
 not. The shared brief rules now run the command under `pipefail`. Briefs
 sized at 50 calls ran about a third over; D2b to D2f are sized with that in
 mind.
+
+## 2026-11-07 (bf9f1c8d): from a checker to an eval (DRAFT, in progress)
+
+Goal, in the owner's words: "go through my last sessions and find those that
+have used Agent Delegation Kit ... find out what worked well and what worked
+poorly. Develop a framework for these retrospectives ... a 'real Eval' of how
+the AI is doing, with AI-collected evidence, human overreads, and objective
+testing of golden examples."
+
+Decision: extend the existing evals rather than start beside them (D-072,
+the owner agreed). The checker, the failure catalog and the D2/D3 design
+become the base layer.
+
+Finding from the owner's account: recent catches came mostly from the
+dispatching session's own rules (a three-strikes stop-loss, a self-review
+that found 3 issues beside a second-model review that found about 10), and
+the checker reached the owner about once. Proposal on the table: credit
+every catch to whoever made it (checker, dispatcher rule, reviewer, owner,
+escaped) and track how catches move earlier and cheaper over time.
+
+Constraint: about 10 minutes of human overread per session, so the retro
+must arrive as claims to confirm, proposed rule changes, and a random
+spot-check of items marked fine (to measure misses, not only flags).
+
+A read-only transcript study over the 32 sessions that dispatched kit agents
+is running. Nothing built yet.
+
+## 2026-11-09, session ba39343c: session registry (draft)
+
+Goal, from the owner's brief: always know which projects a Claude Code session touches, when it started, whether it
+ended cleanly and how to resume it; make an accidental exit cost one key. Same files on every machine, built and
+tested on the Windows PC first.
+
+Probes before building: a hook from a settings file runs in a folder with no project settings; a SessionStart
+`sessionTitle` sets the session name (custom-title entry in the transcript); `--resume` works from another folder;
+`--session-id` exists, so a launcher can choose the ID itself. Refresh timing of the status line and the SessionEnd
+reason for a closed window were left for a session with the owner present.
+
+Findings that shaped the design: hooks receive the entry point and an attended flag in their environment, so
+scripted `claude -p` runs can be logged but kept out of "unfinished" notices; Claude Code keeps one small file per
+live process, a useful secondary source for the open list; an existing status line was already configured, so
+replacing it waits for the owner's yes.
+
+Built in `session-registry/`: a log library, one hook script with start/end/touch modes, `sessions`, `cc`, a status
+line script and an installer that prints settings lines and never edits them. 28 tests; one caught a real bug (an
+empty launch project matched the catch-all row of the project table). A real `claude -p` run against a scratch
+install showed the first line, session name, an unfinished notice for a planted session and the project line in the
+transcript. An Opus review was in progress when this entry was drafted. Not installed; live exit checks pending.
+
+## 2026-11-10 (bf9f1c8d, continued): the first blind pair is graded
+
+Continues the 2026-11-07 draft entry above. The owner graded all 20 findings of the first blind review pair as real
+and split his preference: B (Opus) for internal consistency and more unique findings, A (Fable) for two validity
+findings nobody else saw (the scored session picks its own evidence; the retro goes stale when the owner steps away).
+He promoted the stale-retro finding to severity 1 and raised the overread budget to 20 minutes (30 for critical
+work). He judged the discovery phase too slow and set a target: twice as fast for about 15% more cost, possibly three
+Fable runs a week instead of two. A Fable re-think of the prospective layer and an Opus second opinion on the
+evidence-selection finding were dispatched. A docs check found that a PreCompact hook can block compaction and that
+compaction also fires after about an hour idle, so a mechanical pre-compaction checkpoint is possible. The dispatcher
+confessed that it normalized the two finding lists while knowing which model wrote which, an instance of the blinding
+leak the reviewers had flagged.
