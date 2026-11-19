@@ -12,15 +12,19 @@ hash and void the proof.
 
 | Version | File | SHA-256 | Attested |
 |---|---|---|---|
-| 1.0 | `PREREGISTRATION-v1.0.md` | `8eccfbb2218229c3512d917faba87dd31a688307a694827e5bb56e8cecc2082f` | Bitcoin block 975620, 2026-11-12 |
-| 1.1 | `PREREGISTRATION-v1.1.md` | `ac46aad70be6b0afa8d146e21360d86142ca61e86c32190c01bf12e78b6ca460` | Bitcoin block 975620, 2026-11-12 |
-| 1.2 | `PREREGISTRATION-v1.2.md` | `51c1c5f4155c85446b100b51eb2286314f4f592781aa96fe19b9128310d2ca70` | Bitcoin block 975620, 2026-11-12 |
+| 1.0 | `PREREGISTRATION-v1.0.md` | `8eccfbb2218229c3512d917faba87dd31a688307a694827e5bb56e8cecc2082f` | Bitcoin block 975620, 2026-11-13 02:26:51 UTC |
+| 1.1 | `PREREGISTRATION-v1.1.md` | `ac46aad70be6b0afa8d146e21360d86142ca61e86c32190c01bf12e78b6ca460` | Bitcoin block 975620, 2026-11-13 02:26:51 UTC |
+| 1.2 | `PREREGISTRATION-v1.2.md` | `51c1c5f4155c85446b100b51eb2286314f4f592781aa96fe19b9128310d2ca70` | Bitcoin block 975620, 2026-11-13 02:26:51 UTC |
 
 Each file has a proof beside it with the same name plus `.ots`.
 
-The dates are the block's date in US Eastern time, as the client printed it.
-Each proof carries attestations from four calendar servers, in blocks 975619,
-975620 and 975645. The client reported block 975620 for all three versions.
+The time is the header timestamp of block 975620, hash
+`0000000000000000000046b2da1a22ab790ae51228a95079d8bce7a58438e0f5`, read from
+a public block explorer on 2026-11-18. In US Eastern time it is 2026-11-12
+21:26:51, and the client prints that date. Each proof carries attestations
+from four calendar servers, in blocks 975619, 975620 and 975645. The client
+reported block 975620 for all three versions, so the proofs show that each
+version existed by that block. They do not show the order of the versions.
 
 ## Verify a file yourself
 
